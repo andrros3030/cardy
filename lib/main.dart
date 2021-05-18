@@ -8,7 +8,6 @@ class AuthorizationScreen extends StatefulWidget {
 }
 
 class _AuthorizationScreen extends State<AuthorizationScreen> {
-
   @override
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
