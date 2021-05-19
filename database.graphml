@@ -16,7 +16,6 @@
     <data key="d0" xml:space="preserve"/>
     <node id="n0" yfiles.foldertype="group">
       <data key="d4" xml:space="preserve"/>
-      <data key="d5"/>
       <data key="d6">
         <y:ProxyAutoBoundsNode>
           <y:Realizers active="0">
@@ -61,16 +60,19 @@
         <node id="n0::n0">
           <data key="d6">
             <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-              <y:Geometry height="182.69149695999997" width="194.81907199999995" x="-58.30250655232021" y="-127.68694625792057"/>
+              <y:Geometry height="273.69149696" width="194.81907199999995" x="-58.30250655232021" y="-127.68694625792057"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="77.3359375" x="58.741567249999974" xml:space="preserve" y="4.0">T_ACCOUNT</y:NodeLabel>
-              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="136.310546875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="104.6875" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
+              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="180.4140625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="104.6875" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
 PV_EMAIL
 PV_PSWD
 PT_REG
 V_FIRSTNAME
 V_SECONDNAME
+V_TELEGRAM
+V_SECRET
+V_PHONE
 IL_DEL
 IV_USER
 IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelParameter><y:ErdAttributesNodeLabelModelParameter/></y:ModelParameter></y:NodeLabel>
@@ -110,10 +112,13 @@ IT_CHANGE
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="85.345703125" x="54.7366844375" xml:space="preserve" y="4.0">T_CATEGORY</y:NodeLabel>
-              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="63.34375" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
-PS_NAME
-COLOR?
-PICTURE?<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelParameter><y:ErdAttributesNodeLabelModelParameter/></y:ModelParameter></y:NodeLabel>
+              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="106.908203125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="72.677734375" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
+PV_NAME
+PI_ORDER
+V_PICTURE
+IL_DEL
+IV_USER
+IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelParameter><y:ErdAttributesNodeLabelModelParameter/></y:ModelParameter></y:NodeLabel>
               <y:StyleProperties>
                 <y:Property class="java.lang.Boolean" name="y.view.ShadowNodePainter.SHADOW_PAINTING" value="true"/>
               </y:StyleProperties>
@@ -146,11 +151,13 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="52.005859375" x="71.4066063125" xml:space="preserve" y="4.0">T_CARD</y:NodeLabel>
-              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="77.505859375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="74.67578125" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
-...
-SOME DATA
-...
-
+              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="106.908203125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="80.669921875" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
+PV_NAME
+PI_ORDER
+V_COMMENT
+IL_DEL
+IV_USER
+IT_CHANGE
 <y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelParameter><y:ErdAttributesNodeLabelModelParameter/></y:ModelParameter></y:NodeLabel>
               <y:StyleProperties>
                 <y:Property class="java.lang.Boolean" name="y.view.ShadowNodePainter.SHADOW_PAINTING" value="true"/>
@@ -159,7 +166,6 @@ SOME DATA
           </data>
         </node>
         <node id="n0::n5">
-          <data key="d5"/>
           <data key="d6">
             <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
               <y:Geometry height="182.69149695999994" width="194.81907199999995" x="-58.30250655232021" y="177.6960476620793"/>
@@ -180,7 +186,6 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
     </node>
     <node id="n1" yfiles.foldertype="group">
       <data key="d4" xml:space="preserve"/>
-      <data key="d5"/>
       <data key="d6">
         <y:ProxyAutoBoundsNode>
           <y:Realizers active="0">
@@ -210,7 +215,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
 введет данные этого аккаунта эти данные будут ему доступны (если их не 
 сотрет обновление бд синхронизируясь с глобальной)
 2) очищаем временные данные в переменных приложения<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.5" nodeRatioX="2.220446049250313E-16" nodeRatioY="0.47833390528329855" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
-              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="342.267578125" x="99.1662109374995" xml:space="preserve" y="355.6484591810043">Каждый вход пользователя:
+              <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="62.8046875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="342.267578125" x="99.1662109374995" xml:space="preserve" y="355.6484591810042">Каждый вход пользователя:
 1) пользователь вводит пинкод приложения (если есть)
 2) данные карты подгружаются из сервера, если есть новые
 3) пользователь оказывается на главном экране<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.5" nodeRatioX="-6.106226635438361E-16" nodeRatioY="0.19094263704107461" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
@@ -234,11 +239,11 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
       </data>
       <graph edgedefault="directed" id="n1:"/>
     </node>
-    <edge id="n0::e0" source="n0::n0" target="n0::n1">
+    <edge id="e0" source="n0" target="n0::n1">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="97.3829705523201" sy="-55.95807054845352" tx="-97.40700632775349" ty="-6.446204011171744">
-            <y:Point x="163.15999999999988" y="-22.517771366373893"/>
+          <y:Path sx="-320.0508587018403" sy="-263.83408964657826" tx="-97.40700632775349" ty="-6.446204011171744">
+            <y:Point x="163.15999999999988" y="-87.51777136637389"/>
             <y:Point x="244.0559999999998" y="-22.517771366373893"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
@@ -247,11 +252,10 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n0::e1" source="n0::n0" target="n0::n5">
-      <data key="d9"/>
+    <edge id="n0::e0" source="n0::n0" target="n0::n5">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="-95.50685294767968" sy="-51.65318540957911" tx="-5.906852947679653" ty="-36.23617932957899">
+          <y:Path sx="-97.44296694767976" sy="-97.15318540957912" tx="-5.906852947679653" ty="-36.23617932957899">
             <y:Point x="-65.99982349999993" y="-87.9943831874997"/>
             <y:Point x="-65.99982349999993" y="232.80561681250032"/>
           </y:Path>
@@ -261,7 +265,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n0::e2" source="n0::n1" target="n0::n2">
+    <edge id="n0::e1" source="n0::n1" target="n0::n2">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-19.296687687679764" sy="6.399999999999977" tx="17.476312178159446" ty="-53.92377358845317">
@@ -274,7 +278,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n0::e3" source="n0::n3" target="n0::n2">
+    <edge id="n0::e2" source="n0::n3" target="n0::n2">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="1.4493120439987024" sy="-37.39406847999993" tx="-58.523687821840554" ty="-50.723773588453156">
@@ -287,7 +291,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n0::e4" source="n0::n4" target="n0::n1">
+    <edge id="n0::e3" source="n0::n4" target="n0::n1">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-0.12368782184069005" sy="-52.215270548453304" tx="-33.69668768767974" ty="21.094729451546527">
@@ -300,12 +304,26 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n0::e5" source="n0::n4" target="n0::n3">
+    <edge id="n0::e4" source="n0::n4" target="n0::n3">
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="-64.12368782184058" sy="-54.61527054845334" tx="-0.9506879560011612" ty="-19.288797931546526">
             <y:Point x="749.2439999999998" y="121.73502863362609"/>
             <y:Point x="749.2439999999998" y="28.640299182079616"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="none"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="n0::e5" source="n0::n0" target="n0::n1">
+      <data key="d9"/>
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="-18.107029447679764" sy="-95.65880222207943" tx="-0.1406876876798151" ty="-5.0">
+            <y:Point x="159.0" y="-86.5"/>
+            <y:Point x="238.0" y="28.44029918207967"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
