@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'backend/database.dart';
 import 'widgetsSettings.dart';
+import 'dart:async';
 
 class AuthorizationScreen extends StatefulWidget {
   //TODO: add params to fast auth (log:pass from Hive)
@@ -41,7 +43,11 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
   }
 }
 
-
-void main() {
+void start() async{
+  await localDB.db.InitDatabase();
   appRuner(AuthorizationScreen());
+}
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  start();
 }

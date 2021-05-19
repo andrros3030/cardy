@@ -71,8 +71,6 @@ final String app_name = "Cardy: your wallet"; //глобальное назва�
 
 //запускает приложение с заданным экраном и локализатором
 appRuner(Widget home){
-  debugPrint("new runner");
-  debugPrint(home.toString());
   if(!kIsWeb)
     runApp(new MaterialApp(
         debugShowCheckedModeBanner: false,
