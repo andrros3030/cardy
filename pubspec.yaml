@@ -23,6 +23,8 @@ dependencies:
   sqflite: any
   path_provider: any
   crypto: ^3.0.1
+  hive: any
+  hive_flutter: any
   flutter:
     sdk: flutter
 
