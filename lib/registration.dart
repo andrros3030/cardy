@@ -12,7 +12,17 @@ class _onBoarding extends State<onBoarding> {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Center(child: Text("onboarding"),),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(child: Text("onboarding"),),
+          MaterialButton(
+            color: primaryDark,
+            onPressed: (){appRuner(regScreen());},
+          ),
+        ],
+      ),
     );
   }
 }
@@ -23,8 +33,48 @@ class regScreen extends StatefulWidget {
 }
 
 class _regScreen extends State<regScreen> {
+  final _formKey = GlobalKey<FormState>();
+  int i = 0;
+  bool canContinue = false;
+  bool validEmail = false;
+  bool _loading = false;
+  bool _showingBad = false;
+  String _email = '';
   @override
+  String isEmail(String s){
+    if (RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(s))
+      return null;
+    return "введите настоящую почту";
+  }
+  Future<bool> availableEmail(String s) async{
+    setState(() {
+      _loading = true;
+    });
+    debugPrint('process started');
+    await Future.delayed(Duration(seconds: 2)).then((value) {
+      debugPrint('process ended');
+      setState(() {
+        i+=1;
+        if (i%2 == 0){
+          canContinue = true;
+        }
+        else{
+          _showingBad = true;
+        }
+
+        _loading = false;
+      });
+    });
+  }
+
   Widget build(BuildContext context) {
+    if (_showingBad){
+      Future.delayed(Duration(seconds: 1)).then((value) {
+        setState(() {
+          _showingBad = false;
+        });
+      });
+    }
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -69,33 +119,73 @@ class _regScreen extends State<regScreen> {
           ),
         ),
       ),
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 25),
-          width: _width,
-          height: _height-appBarHeight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(child: SizedBox()),
-              Text("Введите ваш адрес электронной почты, пожалуйста используйте вашу настоящую почту"),
-              SizedBox(height: 10,),
-              TextField(),
-              Expanded(child: SizedBox(),),
-              Opacity(
-                opacity: 1.0,
-                child: MaterialButton(
-                  color: primaryDark,
-                  onPressed: () {
-                    debugPrint("button next");
-                  },
+      body: Stack(
+        children: [
+          Form(
+            autovalidateMode: AutovalidateMode.always, key: _formKey,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 25),
+                width: _width,
+                height: _height-appBarHeight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: SizedBox()),
+                    Text("Введите ваш адрес электронной почты, пожалуйста используйте вашу настоящую почту"),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      maxLines: 1,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                          suffix: AnimatedOpacity(
+                            opacity: validEmail?1.0:0.0,
+                            duration: Duration(seconds: 1),
+                            child: GestureDetector(
+                              child: Container(width: 20, height: 20, child: _loading?CircularProgressIndicator():Icon(_showingBad?Icons.block:canContinue?Icons.done:Icons.adjust, color: _showingBad?Colors.red:canContinue?Colors.green:null,)),
+                              onTap: (){
+                                if (validEmail && !_loading){
+                                  canContinue = false;
+                                  availableEmail(_email);
+                                }
+                              },
+                            ),)),
+                      validator: (val){
+                        return isEmail(val);
+                      },
+                      onChanged: (val){
+                        _email = val;
+                        canContinue = false;
+                        if (_formKey.currentState.validate())
+                          setState(() {
+                            validEmail = true;
+                          });
+                        else if (validEmail)
+                          setState(() {
+                            validEmail = false;
+                          });
+                      },
+                    ),
+                    Expanded(child: SizedBox(),),
+                    AnimatedOpacity(
+                      opacity: canContinue?1.0:0.0,
+                      duration: Duration(seconds: 1),
+                      child: MaterialButton(
+                        color: primaryDark,
+                        onPressed: () {
+                          if (canContinue && !_loading){
+                            debugPrint("button next");
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(child: SizedBox(),),
+                  ],
                 ),
-              ),
-              Expanded(child: SizedBox(),),
-            ],
-          ),
-        )
-      ),
+              )
+          ),)
+        ],
+      )
     );
   }
 }
