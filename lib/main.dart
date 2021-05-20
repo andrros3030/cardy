@@ -59,7 +59,7 @@ void start() async{
   await localDB.db.InitDatabase();
   await initHive();
   if (needAutoRegistration)
-    appRuner(regScreen());
+    appRuner(onBoarding());
   else if (! authorized)
     appRuner(AuthorizationScreen(log: accountEmail));
   else{

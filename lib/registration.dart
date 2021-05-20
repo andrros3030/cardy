@@ -1,6 +1,22 @@
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 
+class onBoarding extends StatefulWidget {
+  @override
+  _onBoarding createState() => _onBoarding();
+}
+
+class _onBoarding extends State<onBoarding> {
+  @override
+  Widget build(BuildContext context) {
+    double _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      body: Center(child: Text("onboarding"),),
+    );
+  }
+}
+
 class regScreen extends StatefulWidget {
   @override
   _regScreen createState() => _regScreen();
