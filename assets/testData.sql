@@ -25,19 +25,20 @@ INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES('AG6
 
 
 /*SELECT
-  acc.PK_ID as accID,
-  access.PL_MODIFY as privilageLVL,
-  ctg.PK_ID as ctgID,
-  ctg.PV_NAME as ctgName,
-  ctg.PI_ORDER as ctgORDER,
-  lnk.PK_ID as lnkID,
-  crd.PK_ID as CAD,
-  crd.PV_NAME as CNAME,
-  crd.PI_ORDER as CORDER
-  from T_CARD crd LEFT join
-  T_LINK lnk on crd.PK_ID = lnk.FK_CARD LEFT JOIN
-  T_CATEGORY ctg on lnk.FK_CATEGORY = ctg.pk_id JOIN
-  T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN
-  T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID
-  WHERE acc.PK_ID = 'GUID2'
+    acc.PK_ID as accID,
+    access.pi_priority as privilageLVL,
+    ctg.PK_ID as ctgID,
+    ctg.PV_NAME as ctgName,
+    ctg.PI_ORDER as ctgORDER,
+    lnk.PK_ID as lnkID,
+    crd.PK_ID as CAD,
+    crd.PV_NAME as CNAME,
+    crd.PI_ORDER as CORDER
+    from T_CARD crd LEFT join
+    T_LINK lnk on crd.PK_ID = lnk.FK_CARD LEFT JOIN
+    T_CATEGORY ctg on lnk.FK_CATEGORY = ctg.pk_id JOIN
+    T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN
+    T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID
+    WHERE acc.PK_ID = 'GUID1' AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0
+    order BY ctg.pi_order asc
 */

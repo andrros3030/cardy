@@ -55,25 +55,46 @@ class localDB {
     return DateTime.now().toUtc().toString();
   }
 
-  Future<bool> accountExists({email, hashPass}) async{
+  Future<bool> accountExists({@required email, @required hashPass}) async{
     Database db = await newDB;
-    List data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ?", [email, hashPass]);
-    if (data.length != 0){
-      accountGuid = data[0]["PK_ID"];
+    List _data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ?", [email, hashPass]);
+    if (_data.length != 0){
+      accountGuid = _data[0]["PK_ID"];
       return true;
     }
     return false;
   }
-  Future<bool> hasSecret({acc_id})async{
+  Future<bool> hasSecret({@required acc_id})async{
     Database db = await newDB;
-    List data = await db.rawQuery("SELECT V_SECRET FROM T_ACCOUNT WHERE PK_ID = ?", [acc_id]);
-    if (data.length != 0){
-      if (data[0]["V_SECRET"].toString().length > 0 && data[0]["V_SECRET"].toString().toLowerCase() != 'null')
+    List _data = await db.rawQuery("SELECT V_SECRET FROM T_ACCOUNT WHERE PK_ID = ?", [acc_id]);
+    if (_data.length != 0){
+      if (_data[0]["V_SECRET"].toString().length > 0 && _data[0]["V_SECRET"].toString().toLowerCase() != 'null')
         return true;
       return false;
     }
     else{
       exit(1);
     }
+  }
+  Future<List> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. [{ctgID: "", ctgName: "", ctgOrder: "", ctgImage: "", ctgCards: [{cad:"cardID", lnkID: "", cname: "". corder: "", ...}, ... ]}, ..., {ctgID: "unsorted", ctgCards: [...]}]
+    Database db = await newDB;
+    List _data = await db.rawQuery('SELECT '
+        'access.PI_PRIORITY as PRIORITY, '
+        'ctg.PK_ID as ctgID, '
+        'ctg.PV_NAME as ctgName, '
+        'ctg.PI_ORDER as ctgORDER, '
+        'ctg.V_PICTURE as ctgImage'
+        'lnk.PK_ID as lnkID, '
+        'crd.PK_ID as CAD, '
+        'crd.PV_NAME as CNAME, '
+        'crd.PI_ORDER as CORDER '    //TODO: остальные данные карты
+        'from T_CARD crd LEFT join '
+        'T_LINK lnk on crd.PK_ID = lnk.FK_CARD LEFT JOIN '
+        'T_CATEGORY ctg on lnk.FK_CATEGORY = ctg.pk_id JOIN '
+        'T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN '
+        'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
+        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
+        "order BY ctg.pi_order asc", [acc_id]);
+    //TODO: привести данные к виду, который должна возвращать функция
   }
 }
