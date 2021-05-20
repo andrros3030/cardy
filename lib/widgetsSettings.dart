@@ -54,7 +54,6 @@ TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
 
 BuildContext contextForLogic;
 
-bool tabBarisUp = false; //из мвп вынесли, настройка для отображения иконок меня сверху, удалить хвосты?
 bool authorized = false; //глобальная переменная для проверки, выполнен ли вход в аккаунт? Эквивалентна accountGuid == null
 bool needAutoRegistration = true; //глобальная переменная для проверки, требуется ли авторегистрация? По факту - дублирует переменную в hive для более быстрой работы
 
@@ -63,7 +62,7 @@ String getHash(String str){
   return md5.convert(utf8.encode(str)).toString();
 }
 
-String accountGuid; //тут хранится fk_id аккаунта, заполняется при авторизации и очищается при логине. Проставляется как fv_user и в подобных случаях.
+String accountGuid, accountEmail, pass;
 
 bool isWeb = false; //дубликат переменной kIsWeb, который используется в приложении
 
@@ -102,3 +101,6 @@ openSupportEmail(BuildContext context, {bool noLocalization = false})async{
   //TODO: url += our_adress
   await launch(url);
 }
+
+
+double appBarHeight = 60;

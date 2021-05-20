@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'backend/database.dart';
+import 'backend/hiveStorage.dart';
 import 'widgetsSettings.dart';
+import 'registration.dart';
+import 'pinPage.dart';
 import 'dart:async';
 
 class AuthorizationScreen extends StatefulWidget {
-  //TODO: add params to fast auth (log:pass from Hive)
+  String log, message;
+  AuthorizationScreen({this.log, this.message});
   @override
-  _AuthorizationScreen createState() => _AuthorizationScreen();
+  _AuthorizationScreen createState() => _AuthorizationScreen(log: this.log, message: this.message);
 }
 
 class _AuthorizationScreen extends State<AuthorizationScreen> {
+  String log, message;
+  _AuthorizationScreen({this.log, this.message});
   @override
+
+
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
@@ -43,9 +51,31 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
   }
 }
 
+void openMain() async{ //этот метод запускает главный экран, когда пользователь авторизовался, ввел пин-код или зарегистрировался.
+
+}
+
 void start() async{
   await localDB.db.InitDatabase();
-  appRuner(AuthorizationScreen());
+  await initHive();
+  if (needAutoRegistration)
+    appRuner(regScreen());
+  else if (! authorized)
+    appRuner(AuthorizationScreen(log: accountEmail));
+  else{
+    if (await localDB.db.accountExists(email: accountEmail, hashPass: pass)){
+      if (await localDB.db.hasSecret(acc_id: accountGuid)){
+        appRuner(pinScreen());
+      }
+      else{
+        openMain();
+      }
+    }
+    else{
+      appRuner(AuthorizationScreen(log: accountEmail, message: "Данные для входа в аккаунт устарели, пожалуйста введите пароль заново",));
+    }
+  }
+
 }
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
