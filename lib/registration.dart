@@ -1,3 +1,4 @@
+import 'package:card_app_bsk/backend/database.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 
@@ -51,19 +52,14 @@ class _regScreen extends State<regScreen> {
       _loading = true;
     });
     debugPrint('process started');
-    await Future.delayed(Duration(seconds: 2)).then((value) {
-      debugPrint('process ended');
-      setState(() {
-        i+=1;
-        if (i%2 == 0){
-          canContinue = true;
-        }
-        else{
-          _showingBad = true;
-        }
-
-        _loading = false;
-      });
+    bool res = await localDB.db.accountExistsLocal(email: _email);
+    if (!res){
+      res = await localDB.db.emailIsTakenGlobal(email: _email);
+    }
+    setState(() {
+      _showingBad = res;
+      canContinue = !res;
+      _loading = false;
     });
   }
 
@@ -154,7 +150,7 @@ class _regScreen extends State<regScreen> {
                         return isEmail(val);
                       },
                       onChanged: (val){
-                        _email = val;
+                        _email = val.toLowerCase();
                         canContinue = false;
                         if (_formKey.currentState.validate())
                           setState(() {

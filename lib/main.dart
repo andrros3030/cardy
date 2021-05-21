@@ -63,7 +63,7 @@ void start() async{
   else if (! authorized)
     appRuner(AuthorizationScreen(log: accountEmail));
   else{
-    if (await localDB.db.accountExists(email: accountEmail, hashPass: pass)){
+    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass)){
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }

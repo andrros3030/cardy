@@ -55,15 +55,31 @@ class localDB {
     return DateTime.now().toUtc().toString();
   }
 
-  Future<bool> accountExists({@required email, @required hashPass}) async{
+  Future<bool> accountExistsLocal({@required email, hashPass}) async{
     Database db = await newDB;
-    List _data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ?", [email, hashPass]);
+    List _data;
+    if (hashPass == null) {
+      _data = await db.rawQuery(
+          "SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ?", [email]);
+      if (_data.length != 0){
+        return true;
+      }
+      return false;
+    }
+    else
+      _data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ?", [email, hashPass]);
     if (_data.length != 0){
       accountGuid = _data[0]["PK_ID"];
       return true;
     }
     return false;
   }
+
+  Future<bool> emailIsTakenGlobal({@required email})async{
+    await Future.delayed(const Duration(seconds: 2), (){});  //TODO: здесь вызываем глобальную базу для проверки, есть ли аккаунт с такой почтой
+    return false;
+  }
+
   Future<bool> hasSecret({@required acc_id})async{
     Database db = await newDB;
     List _data = await db.rawQuery("SELECT V_SECRET FROM T_ACCOUNT WHERE PK_ID = ?", [acc_id]);
