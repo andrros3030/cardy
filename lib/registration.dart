@@ -35,7 +35,6 @@ class regScreen extends StatefulWidget {
 
 class _regScreen extends State<regScreen> {
   final _formKey = GlobalKey<FormState>();
-  int i = 0;
   bool canContinue = false;
   bool validEmail = false;
   bool _loading = false;
@@ -170,7 +169,7 @@ class _regScreen extends State<regScreen> {
                         color: primaryDark,
                         onPressed: () {
                           if (canContinue && !_loading){
-                            debugPrint("button next");
+                            Navigator.of(context).push(_createRoute(_email));
                           }
                         },
                       ),
@@ -182,6 +181,138 @@ class _regScreen extends State<regScreen> {
           ),)
         ],
       )
+    );
+  }
+}
+
+Route _createRoute(String _email) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => regScreenPage2(_email),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      var begin = Offset(1.0, 0.0);
+      var end = Offset.zero;
+      var curve = Curves.ease;
+
+      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
+}
+
+class regScreenPage2 extends StatefulWidget {
+  String _email;
+  regScreenPage2(this._email);
+  @override
+  _regScreenPage2 createState() => _regScreenPage2(_email);
+}
+class _regScreenPage2 extends State<regScreenPage2> {
+  String _email, passw0rd;
+  bool canRegister = false;
+  _regScreenPage2(this._email);
+  final _formKey = GlobalKey<FormState>();
+  bool _loading = false;
+  @override
+  Widget build(BuildContext context) {
+    double _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: Size(_width, appBarHeight),
+          child: Container(
+            color: primaryDark,
+            child: SafeArea(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Navigator.canPop(context)?GestureDetector(
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          child: Icon(
+                            Icons.arrow_back_ios_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                        onTap: (){
+                          debugPrint(_email);
+                          Navigator.of(context).pop();
+                        },
+                      ):Container(
+                        width: 40,
+                        height: 40,
+                        color: Colors.transparent,
+                      ),
+                      GestureDetector(
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          color: Colors.transparent,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ),
+          ),
+        ),
+      body: Stack(
+        children: [
+          Form(
+            autovalidateMode: AutovalidateMode.always, key: _formKey,
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 25),
+                width: _width,
+                height: _height-appBarHeight,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: SizedBox(),),
+                    Text("Введите пароль для аккаунта. Придумайте надежный пароль, он поможет защитить ваши данные от злоумышленников. Вы будете использовать его при входе в аккаунт на новом устройстве."),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      maxLines: 1,
+                      keyboardType: TextInputType.emailAddress,
+                      //decoration: InputDecoration(suffix: ),
+                      validator: (val){
+                        return val.length>=8?null:"Длина пароля должна составлять не менее 8 символов";
+                      },
+                      onChanged: (val){
+                        passw0rd = val.toLowerCase();
+                        if (_formKey.currentState.validate())
+                          setState(() {
+                            canRegister = true;
+                          });
+                      },
+                    ),
+                    Expanded(child: SizedBox(),),
+                    AnimatedOpacity(
+                      opacity: canRegister?1.0:0.0,
+                      duration: Duration(seconds: 1),
+                      child: MaterialButton(
+                        color: primaryDark,
+                        onPressed: () {
+                          if (canRegister && !_loading){
+                            //TODO: register new user
+                          }
+                        },
+                      ),
+                    ),
+                    Expanded(child: SizedBox(),),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ]
+      ),
     );
   }
 }
