@@ -25,6 +25,7 @@ dependencies:
   crypto: ^3.0.1
   hive: any
   hive_flutter: any
+  uuid: any
   flutter:
     sdk: flutter
 

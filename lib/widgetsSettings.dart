@@ -102,5 +102,6 @@ openSupportEmail(BuildContext context, {bool noLocalization = false})async{
   await launch(url);
 }
 
-
+bool uncheckedEmailWhileRegister = true;
+bool unchekedEmail = true;
 double appBarHeight = 60;

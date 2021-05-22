@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'dart:async';
 
+
+import 'package:card_app_bsk/backend/hiveStorage.dart';
+import 'package:uuid/uuid.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,6 +12,10 @@ import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 
 class localDB {
+  Uuid uuid = Uuid();
+  String guid(){
+    return uuid.v1();
+  }
   //region DB initial functions
   localDB._();
 
@@ -50,7 +57,9 @@ class localDB {
     );
   }
   //endregion
+
   //функция для получения метки времени, в UTC. Используется везде, где нужен timestamp (ft_change, ft_canceled, ft_done и т.д.)
+
   String timeStamp() {
     return DateTime.now().toUtc().toString();
   }
@@ -74,12 +83,13 @@ class localDB {
     }
     return false;
   }
-
   Future<bool> emailIsTakenGlobal({@required email})async{
     await Future.delayed(const Duration(seconds: 2), (){});  //TODO: здесь вызываем глобальную базу для проверки, есть ли аккаунт с такой почтой
+    if (false){
+      uncheckedEmailWhileRegister = false;
+    }
     return false;
   }
-
   Future<bool> hasSecret({@required acc_id})async{
     Database db = await newDB;
     List _data = await db.rawQuery("SELECT V_SECRET FROM T_ACCOUNT WHERE PK_ID = ?", [acc_id]);
@@ -112,5 +122,17 @@ class localDB {
         "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
     //TODO: привести данные к виду, который должна возвращать функция
+  }
+  Future<String> createNewUser({@required String email, @required String hash_pass}) async {
+    Database db = await newDB;
+    String _id = guid();
+    await db.rawInsert("INSERT INTO T_ACCOUNT(PK_ID, PV_EMAIL, PV_PSWD, PT_REG, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)", [_id.toLowerCase(), email.toLowerCase(), hash_pass.toLowerCase(), timeStamp(), 'application', timeStamp()]);
+    if (uncheckedEmailWhileRegister)
+      saveBadEmail(email);
+    else{
+      //TODO: send new account to global database
+    }
+    saveCreditionals(email: email, password: hash_pass);
+    return _id;
   }
 }

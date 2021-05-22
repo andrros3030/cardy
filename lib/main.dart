@@ -1,3 +1,4 @@
+import 'package:card_app_bsk/mainPage.dart';
 import 'package:flutter/material.dart';
 import 'backend/database.dart';
 import 'backend/hiveStorage.dart';
@@ -52,7 +53,7 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
 }
 
 void openMain() async{ //этот метод запускает главный экран, когда пользователь авторизовался, ввел пин-код или зарегистрировался.
-
+  appRuner(mainPage());
 }
 
 void start() async{

@@ -1,4 +1,5 @@
 import 'package:card_app_bsk/backend/database.dart';
+import 'package:card_app_bsk/main.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 
@@ -185,6 +186,7 @@ class _regScreen extends State<regScreen> {
   }
 }
 
+
 Route _createRoute(String _email) {
   return PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => regScreenPage2(_email),
@@ -203,22 +205,39 @@ Route _createRoute(String _email) {
   );
 }
 
+
 class regScreenPage2 extends StatefulWidget {
   String _email;
   regScreenPage2(this._email);
   @override
   _regScreenPage2 createState() => _regScreenPage2(_email);
 }
+
+
 class _regScreenPage2 extends State<regScreenPage2> {
   String _email, passw0rd;
   bool canRegister = false;
   _regScreenPage2(this._email);
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
+
+  Future _register() async{
+    accountGuid = await localDB.db.createNewUser(email: _email, hash_pass: passw0rd);
+    openMain();
+    Navigator.of(context).pop();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
+    if (_loading)
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: Size(_width, appBarHeight),
@@ -300,7 +319,11 @@ class _regScreenPage2 extends State<regScreenPage2> {
                         color: primaryDark,
                         onPressed: () {
                           if (canRegister && !_loading){
-                            //TODO: register new user
+                            setState(() {
+                              _loading = true;
+                            });
+                            passw0rd = getHash(passw0rd);
+                            _register();
                           }
                         },
                       ),
