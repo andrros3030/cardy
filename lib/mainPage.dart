@@ -20,6 +20,15 @@ class _mainPage extends State<mainPage> {
           accountGuid + unchekedEmail.toString()
         ),
       ),
+      drawer: Drawer(
+
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: (){
+
+        },
+      ),
     );
   }
 }

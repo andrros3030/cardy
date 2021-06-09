@@ -42,7 +42,31 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
                 width: _width-50,
                 decoration: BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(27), topRight: Radius.circular(27)), color: Colors.white),
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 25),
-                child: ColoredBox(color: Colors.red,),
+                child: ColoredBox(
+                  color: Colors.red,
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 4,
+                        child: SizedBox(),
+                      ),
+                      MaterialButton(
+                        color: primaryDark,
+                        child: Text("Войти"),
+                        onPressed:(){},
+                      ),
+                      SizedBox(height: 25,),
+                      OutlineButton(
+                        child: Text("Зарегистрироваться"),
+                        onPressed: (){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {return regScreen();}));
+                        },
+
+                      ),
+                      Expanded(child: SizedBox()),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -62,7 +86,10 @@ void start() async{
   if (needAutoRegistration)
     appRuner(onBoarding());
   else if (! authorized)
-    appRuner(AuthorizationScreen(log: accountEmail));
+    if (accountEmail != null)
+      appRuner(AuthorizationScreen(log: accountEmail));
+    else
+      appRuner(AuthorizationScreen());
   else{
     if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass)){
       if (await localDB.db.hasSecret(acc_id: accountGuid)){

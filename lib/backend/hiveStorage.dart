@@ -48,3 +48,7 @@ void saveCreditionals({@required email, password}){
   appData.put("email", email);
   appData.put("pass", password);
 }
+
+void setOnboardingSkipped(){
+  appData.put("onBoardingSkipped", true);
+}

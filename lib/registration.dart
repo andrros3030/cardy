@@ -1,4 +1,5 @@
 import 'package:card_app_bsk/backend/database.dart';
+import 'package:card_app_bsk/backend/hiveStorage.dart';
 import 'package:card_app_bsk/main.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,17 @@ class _onBoarding extends State<onBoarding> {
           Center(child: Text("onboarding"),),
           MaterialButton(
             color: primaryDark,
+            child: Text("зарегистрироваться"),
             onPressed: (){appRuner(regScreen());},
+          ),
+          SizedBox(height: 25,),
+          OutlineButton(
+            color: primaryDark,
+            child: Text("Войти"),
+            onPressed: (){
+              setOnboardingSkipped();
+              appRuner(AuthorizationScreen());
+            },
           ),
         ],
       ),
@@ -95,7 +106,7 @@ class _regScreen extends State<regScreen> {
                       ),
                     ),
                     onTap: (){
-                      debugPrint("tap on arrow_back");
+                      Navigator.of(context).pop();
                     },
                   ):Container(
                     width: 40,
@@ -224,7 +235,8 @@ class _regScreenPage2 extends State<regScreenPage2> {
   Future _register() async{
     accountGuid = await localDB.db.createNewUser(email: _email, hash_pass: passw0rd);
     openMain();
-    Navigator.of(context).pop();
+    while (Navigator.of(context).canPop())
+      Navigator.of(context).pop();
   }
 
 
