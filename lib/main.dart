@@ -16,6 +16,7 @@ class AuthorizationScreen extends StatefulWidget {
 
 class _AuthorizationScreen extends State<AuthorizationScreen> {
   String log, message;
+  bool secretPass = true;
   _AuthorizationScreen({this.log, this.message});
   @override
 
@@ -41,15 +42,41 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
               child: Container(
                 width: _width-50,
                 decoration: BoxDecoration(borderRadius: BorderRadius.only(topLeft: Radius.circular(27), topRight: Radius.circular(27)), color: Colors.white),
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 25),
+                padding: EdgeInsets.only(left: 10, right: 10, top: 25),
                 child: ColoredBox(
                   color: Colors.red,
                   child: Column(
                     children: [
                       Expanded(
-                        flex: 4,
+                        flex: 1,
                         child: SizedBox(),
                       ),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24
+                        ),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Введите email',
+                          ),
+
+                        ),
+                      ),
+                      SizedBox(height: 15,),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 24
+                        ),
+                        child: passwordField(
+                            onSuffixTap: (){
+                              setState(() {
+                                secretPass = !secretPass;
+                              });
+                            },
+                            obscure: secretPass
+                        ),
+                      ),
+                      SizedBox(height: 15,),
                       MaterialButton(
                         color: primaryDark,
                         child: Text("Войти"),
@@ -61,7 +88,6 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
                         onPressed: (){
                           Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) {return regScreen();}));
                         },
-
                       ),
                       Expanded(child: SizedBox()),
                     ],
@@ -77,10 +103,15 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
 }
 
 void openMain() async{ //этот метод запускает главный экран, когда пользователь авторизовался, ввел пин-код или зарегистрировался.
+  localDB.db.getUserCardsNCategories(acc_id: accountGuid);
   appRuner(mainPage());
 }
 
 void start() async{
+  authorized = false;
+  accountGuid = '';
+  accountEmail = '';
+  pass = '';
   await localDB.db.InitDatabase();
   await initHive();
   if (needAutoRegistration)

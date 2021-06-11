@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:fluttericon/font_awesome5_icons.dart';
 
 Color primaryDark = Colors.green; //из фигмы
 Color primaryLight = Colors.lightGreen; //из фигмы
@@ -105,3 +106,24 @@ openSupportEmail(BuildContext context, {bool noLocalization = false})async{
 bool uncheckedEmailWhileRegister = true;
 bool unchekedEmail = true;
 double appBarHeight = 60;
+
+Widget passwordField({Function validator, Function onChanged, @required bool obscure, @required onSuffixTap}){
+  return TextFormField(
+    maxLines: 1,
+    validator: validator,
+    onChanged: onChanged,
+    obscureText: obscure,
+    decoration: InputDecoration(
+      suffix: GestureDetector(
+        child: Container(
+          height: 20,
+          width: 20,
+          child: Icon(
+            obscure?FontAwesome5.eye:FontAwesome5.eye_slash, size:16
+          ),
+        ),
+        onTap: onSuffixTap,
+      )
+    ),
+  );
+}

@@ -49,6 +49,10 @@ void saveCreditionals({@required email, password}){
   appData.put("pass", password);
 }
 
+void closeAccount(){
+  appData.delete("pass");
+}
+
 void setOnboardingSkipped(){
   appData.put("onBoardingSkipped", true);
 }

@@ -228,6 +228,7 @@ class regScreenPage2 extends StatefulWidget {
 class _regScreenPage2 extends State<regScreenPage2> {
   String _email, passw0rd;
   bool canRegister = false;
+  bool secretPass = true;
   _regScreenPage2(this._email);
   final _formKey = GlobalKey<FormState>();
   bool _loading = false;
@@ -308,10 +309,7 @@ class _regScreenPage2 extends State<regScreenPage2> {
                     Expanded(child: SizedBox(),),
                     Text("Введите пароль для аккаунта. Придумайте надежный пароль, он поможет защитить ваши данные от злоумышленников. Вы будете использовать его при входе в аккаунт на новом устройстве."),
                     SizedBox(height: 10,),
-                    TextFormField(
-                      maxLines: 1,
-                      keyboardType: TextInputType.emailAddress,
-                      //decoration: InputDecoration(suffix: ),
+                    passwordField(
                       validator: (val){
                         return val.length>=8?null:"Длина пароля должна составлять не менее 8 символов";
                       },
@@ -322,6 +320,12 @@ class _regScreenPage2 extends State<regScreenPage2> {
                             canRegister = true;
                           });
                       },
+                      onSuffixTap: (){
+                        setState(() {
+                          secretPass = !secretPass;
+                        });
+                      },
+                      obscure: secretPass,
                     ),
                     Expanded(child: SizedBox(),),
                     AnimatedOpacity(

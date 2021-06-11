@@ -109,7 +109,9 @@ class localDB {
         'ctg.PK_ID as ctgID, '
         'ctg.PV_NAME as ctgName, '
         'ctg.PI_ORDER as ctgORDER, '
-        'ctg.V_PICTURE as ctgImage'
+        'ctg.V_ICON as ctgIcon, '
+        'ctg.V_ICON_COLOR as ctgIconColor, '
+        'ctg.V_BACKGROUND_COLOR as ctgBG, '
         'lnk.PK_ID as lnkID, '
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
@@ -121,6 +123,7 @@ class localDB {
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
         "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
+    debugPrint(_data.toString());
     //TODO: привести данные к виду, который должна возвращать функция
   }
   Future<String> createNewUser({@required String email, @required String hash_pass}) async {
@@ -134,5 +137,12 @@ class localDB {
     }
     saveCreditionals(email: email, password: hash_pass);
     return _id;
+  }
+  void createCard({@required String creator_id, @required String cardName, String cardComment})async{
+    Database db = await newDB;
+    String card_id = guid();
+    await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
+    await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
+    getUserCardsNCategories(acc_id: creator_id); //debug tool
   }
 }
