@@ -104,7 +104,7 @@ class localDB {
       exit(1);
     }
   }
-  Future<List> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. [{ctgID: "", ctgName: "", ctgOrder: "", ctgImage: "", ctgCards: [{cad:"cardID", lnkID: "", cname: "". corder: "", ...}, ... ]}, ..., {ctgID: "unsorted", ctgCards: [...]}]
+  Future<Map> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. [{ctgID: "", ctgName: "", ctgOrder: "", ctgImage: "", ctgCards: [{cad:"cardID", lnkID: "", cname: "". corder: "", ...}, ... ]}, ..., {ctgID: "unsorted", ctgCards: [...]}]
     Database db = await newDB;
     List _data = await db.rawQuery('SELECT '
         'access.PI_PRIORITY as PRIORITY, '
@@ -125,11 +125,36 @@ class localDB {
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
         "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
-    debugPrint(_data.toString());
-    //TODO: привести данные к виду, который должна возвращать функция
-    /*
-
-      */
+    debugPrint('_data: ' + _data.toString());
+    Map<String, List> _cards = {};
+    List<Map> _categories = [];
+    for (int i = 0; i<_data.length; i++){
+      String _key = _data[i]['ctgID'];
+      Map _crd = {
+        'id': _data[i]['CAD'],
+        'access': _data[i]['PRIORITY'],
+        'lnkID': _data[i]['lnkID'],
+        'name': _data[i]['CNAME'],
+        'order': _data[i]['CORDER'],
+      };
+      if (_cards.containsKey(_key))
+        _cards[_key] = _cards[_key] + [_crd];
+      else {
+        if (_key != null && _key != 'null')
+          _categories.add({
+            'id': _data[i]['ctgID'],
+            'name': _data[i]['ctgName'],
+            'order': _data[i]['ctgORDER'],
+            'icon': _data[i]['ctgIcon'],
+            'iconColor': _data[i]['ctgIconColor'],
+            'backgroundColor': _data[i]['ctgBG'],
+          });
+        _cards[_key] = [_crd];
+      }
+    }
+    debugPrint('_cards: ' + _cards.toString());
+    debugPrint('_categories: ' + _categories.toString());
+    return {'cards':_cards, 'categories':_categories};
   }
   Future<String> createNewUser({@required String email, @required String hash_pass}) async {
     Database db = await newDB;
