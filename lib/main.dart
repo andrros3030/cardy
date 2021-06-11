@@ -15,13 +15,34 @@ class AuthorizationScreen extends StatefulWidget {
 }
 
 class _AuthorizationScreen extends State<AuthorizationScreen> {
-  String log, message;
+  TextEditingController _emailController = TextEditingController(); //для заполнения поля значением из hive
+  String log, message, _pass;
   bool secretPass = true;
   _AuthorizationScreen({this.log, this.message});
+
+
+  Future<void> tryAuth() async{
+    if (await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass))){
+      if (await localDB.db.hasSecret(acc_id: accountGuid)){
+        appRuner(pinScreen());
+      }
+      else{
+        openMain();
+      }
+    }
+  }
+  bool _loading = true;
+
   @override
-
-
   Widget build(BuildContext context) {
+    if (_loading){
+      if(mounted)
+        setState(() {
+          _emailController.text = log;
+          _loading = false;
+        });
+    }
+    debugPrint('acc: '+log.toString()+' '+_pass.toString());
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -56,10 +77,13 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
                           horizontal: 24
                         ),
                         child: TextFormField(
+                          maxLines: 1,
+                          keyboardType: TextInputType.emailAddress,
+                          controller: _emailController,
                           decoration: InputDecoration(
                             hintText: 'Введите email',
                           ),
-
+                          onChanged: (String loginStr){log = loginStr;},
                         ),
                       ),
                       SizedBox(height: 15,),
@@ -67,20 +91,26 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
                         padding: EdgeInsets.symmetric(
                             horizontal: 24
                         ),
-                        child: passwordField(
+                        child:
+                          passwordField(
                             onSuffixTap: (){
                               setState(() {
                                 secretPass = !secretPass;
                               });
                             },
-                            obscure: secretPass
+                            obscure: secretPass,
+                            onChanged: (val){
+                              _pass = val;
+                            },
                         ),
                       ),
                       SizedBox(height: 15,),
                       MaterialButton(
                         color: primaryDark,
                         child: Text("Войти"),
-                        onPressed:(){},
+                        onPressed:(){
+                          tryAuth();
+                        },
                       ),
                       SizedBox(height: 25,),
                       OutlineButton(
@@ -114,6 +144,7 @@ void start() async{
   pass = '';
   await localDB.db.InitDatabase();
   await initHive();
+  debugPrint('account: ' + accountEmail.toString() + ' ' + pass.toString());
   if (needAutoRegistration)
     appRuner(onBoarding());
   else if (! authorized)
