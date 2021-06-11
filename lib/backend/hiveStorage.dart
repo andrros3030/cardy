@@ -25,7 +25,7 @@ Future initHive() async {
       if (!List.from(appData.get(_keyBadEmails)).contains(accountEmail))
         unchekedEmail = false;
     }
-    if (keys.contains("pass")){
+    if (keys.contains("pass") && appData.get("pass").toString().length >= 8){ //TODO: если человек ставит флажок "не сохрянать пароль" то записываем сюда слово до 8 символов
       pass = appData.get("pass");
       authorized = true;
     }
@@ -47,6 +47,19 @@ void saveBadEmail(String email){
 void saveCreditionals({@required email, password}){
   appData.put("email", email);
   appData.put("pass", password);
+}
+
+void saveCreditionalsIfNeeded({@required email, @required password}){
+  if (!List.from(appData.keys).contains("email") || appData.get("email") == email){
+    if (!List.from(appData.keys).contains("pass") || appData.get("pass").toString().length >= 8) {
+      appData.put("email", email);
+      appData.put("pass", password);
+    }
+  }
+  else{
+    appData.put("email", email);
+    appData.put("pass", password);
+  }
 }
 
 void closeAccount(){

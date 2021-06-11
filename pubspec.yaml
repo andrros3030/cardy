@@ -19,6 +19,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  reorderables: any
   fluttericon: any
   url_launcher: ^6.0.3
   sqflite: any

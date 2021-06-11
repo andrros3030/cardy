@@ -51,6 +51,7 @@ ThemeData mainTheme = ThemeData(
 
 //набор текстовых стилей, все основные стили прописаны здесь. Либо использовать напрямую, либо копировать с изменением параметров
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
+TextStyle green24 = TextStyle(fontSize: 24, color: backgroundColor);
 //TODO
 
 BuildContext contextForLogic;

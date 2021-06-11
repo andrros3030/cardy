@@ -11,6 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 
+bool loadingCardsCategories = true;
+
 class localDB {
   Uuid uuid = Uuid();
   String guid(){
@@ -125,6 +127,9 @@ class localDB {
         "order BY ctg.pi_order asc", [acc_id]);
     debugPrint(_data.toString());
     //TODO: привести данные к виду, который должна возвращать функция
+    /*
+
+      */
   }
   Future<String> createNewUser({@required String email, @required String hash_pass}) async {
     Database db = await newDB;

@@ -18,11 +18,15 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
   TextEditingController _emailController = TextEditingController(); //для заполнения поля значением из hive
   String log, message, _pass;
   bool secretPass = true;
+  bool _loading = true;
+
+
   _AuthorizationScreen({this.log, this.message});
 
 
   Future<void> tryAuth() async{
     if (await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass))){
+      saveCreditionalsIfNeeded(email: log, password: _pass);
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }
@@ -30,8 +34,10 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
         openMain();
       }
     }
+    else{
+      //TODO: show "incorrect email+password" message
+    }
   }
-  bool _loading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +150,7 @@ void start() async{
   pass = '';
   await localDB.db.InitDatabase();
   await initHive();
-  debugPrint('account: ' + accountEmail.toString() + ' ' + pass.toString());
+  debugPrint('account: ' + accountEmail.toString() + ' ' + pass.toString() + ' authorized: ' + authorized.toString());
   if (needAutoRegistration)
     appRuner(onBoarding());
   else if (! authorized)
@@ -153,7 +159,7 @@ void start() async{
     else
       appRuner(AuthorizationScreen());
   else{
-    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass)){
+    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: getHash(pass))){
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }
