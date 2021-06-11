@@ -144,6 +144,12 @@ class _regScreen extends State<regScreen> {
                     TextFormField(
                       maxLines: 1,
                       keyboardType: TextInputType.emailAddress,
+                      onFieldSubmitted: (val){
+                        if (validEmail && !_loading){
+                          canContinue = false;
+                          availableEmail(_email);
+                        }
+                      },
                       decoration: InputDecoration(
                           suffix: AnimatedOpacity(
                             opacity: validEmail?1.0:0.0,

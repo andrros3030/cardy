@@ -15,7 +15,8 @@ class mainPage extends StatefulWidget {
 
 class _mainPage extends State<mainPage> {
   List categories = [];
-  List cards = [];
+  Map cards = {};
+  bool _loading = true;
 
   Widget categoriesColumn(){
     List<Widget> tiles = List.generate(categories.length, (index) {
@@ -37,14 +38,40 @@ class _mainPage extends State<mainPage> {
     );
   }
 
+  Widget cardsColumn(){
+    List<Widget> tiles = List.generate(cards[null], (index) {
+      return Container(
+        height: 160,
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Card(
+          elevation: 8.0,
+          child: Center(child: Text("Добавить категорию", style: green24,)),
+        ),
+      );
+    });
+    return Column();
+  }
+
+  loadData()async{
+    Map _tmp = await localDB.db.getUserCardsNCategories(acc_id: accountGuid);
+    cards = _tmp["cards"];
+    categories = _tmp['categories'];
+    setState(() {
+      _loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
-    debugPrint("newBuild");
+    if (_loading){
+      loadData();
+    }
     return Scaffold(
       appBar: AppBar(),
-      body: Container(
+      body: _loading?Center(child: CircularProgressIndicator()):Container(
         width: _width,
         height: _height - appBarHeight,
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
@@ -62,7 +89,7 @@ class _mainPage extends State<mainPage> {
                   Text('Неотсортированные карты: '),
                   Container(
                     alignment: Alignment.center,
-                    child: Text(cards.length.toString(), style: white20,),
+                    child: Text(cards.containsKey(null)?cards[null].length.toString():'0', style: white20,),
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: backgroundColor),
                     padding: EdgeInsets.all(4),
                     width: 40,
@@ -103,8 +130,11 @@ class _mainPage extends State<mainPage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: (){
-          localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard');
+        onPressed: ()async{
+          await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard');
+          setState(() {
+            _loading = true;
+          });
         },
       ),
     );

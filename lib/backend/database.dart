@@ -168,7 +168,7 @@ class localDB {
     saveCreditionals(email: email, password: hash_pass);
     return _id;
   }
-  void createCard({@required String creator_id, @required String cardName, String cardComment})async{
+  createCard({@required String creator_id, @required String cardName, String cardComment})async{
     Database db = await newDB;
     String card_id = guid();
     await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);

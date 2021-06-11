@@ -26,7 +26,7 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
 
   Future<void> tryAuth() async{
     if (await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass))){
-      saveCreditionalsIfNeeded(email: log, password: _pass);
+      saveCreditionalsIfNeeded(email: log, password: getHash(_pass));
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }
@@ -139,7 +139,6 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
 }
 
 void openMain() async{ //этот метод запускает главный экран, когда пользователь авторизовался, ввел пин-код или зарегистрировался.
-  localDB.db.getUserCardsNCategories(acc_id: accountGuid);
   appRuner(mainPage());
 }
 
@@ -159,7 +158,7 @@ void start() async{
     else
       appRuner(AuthorizationScreen());
   else{
-    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: getHash(pass))){
+    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass)){
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }
