@@ -6,6 +6,7 @@ import 'widgetsSettings.dart';
 import 'registration.dart';
 import 'pinPage.dart';
 import 'dart:async';
+import 'telegram_dart.dart' ;
 
 class AuthorizationScreen extends StatefulWidget {
   String log, message;
@@ -61,6 +62,11 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            //Expanded(child: SizedBox(), flex: 1),
+            Expanded( child: Container(width: 200,height: 30,child: MaterialButton(onPressed: (){
+
+              telegram_start(context, false,-1, -1);
+            },child: Text("[Telegram]"),),),),
             Expanded(child: SizedBox(), flex: 1,),
             Center(child: Text(app_name, style: white20,)),
             Expanded(child: SizedBox(), flex: 1,),

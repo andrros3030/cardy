@@ -19,6 +19,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  fluttertoast: ^8.0.7
   reorderables: any
   fluttericon: any
   url_launcher: ^6.0.3
