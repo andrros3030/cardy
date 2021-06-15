@@ -1,3 +1,4 @@
+import 'package:card_app_bsk/userPage.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:card_app_bsk/backend/hiveStorage.dart';
@@ -105,7 +106,7 @@ class _mainPage extends State<mainPage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: primaryDark,
               ),
               child: Text(
                 'Drawer Header',
@@ -114,6 +115,13 @@ class _mainPage extends State<mainPage> {
                   fontSize: 24,
                 ),
               ),
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('User settings'),
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => userPage()));
+              },
             ),
             ListTile(
               leading: Icon(Icons.exit_to_app),

@@ -128,3 +128,47 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
     ),
   );
 }
+
+Widget appBarUsual(BuildContext context, double _width){
+  return PreferredSize(
+    preferredSize: Size(_width, appBarHeight),
+    child: Container(
+      color: primaryDark,
+      child: SafeArea(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Navigator.canPop(context)?GestureDetector(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: (){
+                    Navigator.of(context).pop();
+                  },
+                ):Container(
+                  width: 40,
+                  height: 40,
+                  color: Colors.transparent,
+                ),
+                GestureDetector(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    color: Colors.transparent,
+                  ),
+                ),
+              ],
+            ),
+          )
+      ),
+    ),
+  );
+}

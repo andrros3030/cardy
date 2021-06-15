@@ -1,10 +1,11 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+
 bool check_bd_method(String s){
   return true;//временно
 
@@ -69,11 +70,10 @@ telegram_start(BuildContext context, bool is_connected, int id_flutter, int id_t
 
                       ,),), flex: 1,),
                       Expanded(child: SizedBox(), flex: 1,),
-                      Expanded(child: Container(width: 150,height: 40, child: MaterialButton(child: Text("Назад"),onPressed: ()
-                      {
-                        Navigator.pop(context);
-
-                      } ,),), flex: 1,),
+                      Expanded(
+                        child:
+                        Container(width: 150,height: 40, child: MaterialButton(child: Text("Назад"),
+                          onPressed: () {Navigator.pop(context);} ,),), flex: 1,),
 
 
                     ],
@@ -102,8 +102,9 @@ telegram_start(BuildContext context, bool is_connected, int id_flutter, int id_t
             }
             ,child: Text("Отсоедениться"),)), flex: 1,),
               Expanded(child: SizedBox(), flex: 1,),
-            Expanded(child: Container(child: MaterialButton(child: Text("Отмена"),)), flex: 1,),
-
+            Expanded(child: Container(child: MaterialButton(child: Text("Отмена"), onPressed: (){
+              return;
+            },),), flex: 1,),
             ]
 
         ),)

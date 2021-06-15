@@ -85,47 +85,7 @@ class _regScreen extends State<regScreen> {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size(_width, appBarHeight),
-        child: Container(
-          color: primaryDark,
-          child: SafeArea(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Navigator.canPop(context)?GestureDetector(
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      child: Icon(
-                        Icons.arrow_back_ios_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (){
-                      Navigator.of(context).pop();
-                    },
-                  ):Container(
-                    width: 40,
-                    height: 40,
-                    color: Colors.transparent,
-                  ),
-                  GestureDetector(
-                    child: Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.transparent,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ),
-        ),
-      ),
+      appBar: appBarUsual(context, _width),
       body: Stack(
         children: [
           Form(
