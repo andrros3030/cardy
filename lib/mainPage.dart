@@ -39,19 +39,44 @@ class _mainPage extends State<mainPage> {
     );
   }
 
-  Widget cardsColumn(){
-    List<Widget> tiles = List.generate(cards[null], (index) {
-      return Container(
-        height: 160,
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 12),
-        child: Card(
-          elevation: 8.0,
-          child: Center(child: Text("Добавить категорию", style: green24,)),
+  Widget cardsColumn(String key){ //Category Key here
+    if (!cards.containsKey(key))
+      return Container();
+    List _cards = List.from(cards[key]);
+    _cards.sort((a, b){
+      return a['order']>b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
+    });
+    List<Widget> tiles = List.generate(_cards.length, (index) {
+      String _id = _cards[index]['id'];
+      return ReorderableWidget(
+        key: ValueKey(_id),
+        reorderable: true,
+        child: Container(
+          height: 160,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Card(
+            elevation: 8.0,
+            child: Center(child: Text("Card: " + _id, style: green24,)),
+          ),
         ),
       );
     });
-    return Column();
+    return ReorderableColumn(
+      onReorder: (int oldI, int newI) async{
+        int realNew = newI<oldI?newI-1:newI;
+        debugPrint('oldI: ' + oldI.toString() + ' newI: ' + newI.toString());
+        debugPrint("realNew: "+realNew.toString());
+        if (realNew == -1){
+          await localDB.db.reorderCards(card_id: _cards[oldI]['id'], setFirst: true, minOrder: _cards[0]['order']);
+        }
+        else{
+          await localDB.db.reorderCards(card_id: _cards[oldI]['id'], setAfter: _cards[newI]['order']);
+        }
+        setState((){_loading = true;});
+      },
+      children: tiles,
+    );
   }
 
   loadData()async{
@@ -71,7 +96,29 @@ class _mainPage extends State<mainPage> {
       loadData();
     }
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Container(
+          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          width: _width*0.8,
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          alignment: Alignment.center,
+          child: TextFormField(
+            maxLines: 1,
+            decoration: InputDecoration(
+              suffixIcon: Container(
+                child: Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: _loading?Center(child: CircularProgressIndicator()):Container(
         width: _width,
         height: _height - appBarHeight,
@@ -98,6 +145,8 @@ class _mainPage extends State<mainPage> {
                 ),],
               ),
             ),
+            SizedBox(height: 6,),
+            cardsColumn(null),
           ],
         ),
       ),

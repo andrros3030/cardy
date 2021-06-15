@@ -115,7 +115,7 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
     onChanged: onChanged,
     obscureText: obscure,
     decoration: InputDecoration(
-      suffix: GestureDetector(
+        suffixIcon: GestureDetector(
         child: Container(
           height: 20,
           width: 20,
