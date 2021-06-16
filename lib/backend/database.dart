@@ -175,19 +175,12 @@ class localDB {
     await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
     getUserCardsNCategories(acc_id: creator_id); //debug tool
   }
-  reorderCards({@required String card_id, bool setFirst=false, int setAfter, int minOrder})async{
+
+  //Метод который меняет очередность карт, на вход получает id карты и числовое значение order, на которое надо сменить ее значение
+  reorderCards({@required List cardsToUpdate})async{
     Database db = await newDB;
-    if (setFirst){
-      await db.rawUpdate('UPDATE T_CARD SET PI_ORDER = ? WHERE PK_ID = ?', [minOrder - 1, card_id]);
-    }
-    else{
-      await db.rawUpdate('UPDATE T_CARD SET PI_ORDER = PI_ORDER+1 WHERE PI_ORDER > ? AND PK_ID IN (SELECT crd.PK_ID '
-          'from T_CARD crd LEFT join '
-          'T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN '
-          'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
-          "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND access.IL_DEL = 0)"
-          , [setAfter, accountGuid]);
-      await db.rawUpdate('UPDATE T_CARD SET PI_ORDER = ? WHERE PK_ID = ? AND IL_DEL = 0', [setAfter + 1, card_id]);
+    for (var el in cardsToUpdate){
+      await db.rawUpdate('UPDATE T_CARD SET PI_ORDER = ? WHERE PK_ID = ?', [el['order'], el['id']]);
     }
   } //TODO: дублировать функцию для категорий?
 }

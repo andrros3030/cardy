@@ -44,7 +44,7 @@ class _mainPage extends State<mainPage> {
       return Container();
     List _cards = List.from(cards[key]);
     _cards.sort((a, b){
-      return a['order']>b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
+      return a['order']<b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
     });
     List<Widget> tiles = List.generate(_cards.length, (index) {
       String _id = _cards[index]['id'];
@@ -67,12 +67,17 @@ class _mainPage extends State<mainPage> {
         int realNew = newI<oldI?newI-1:newI;
         debugPrint('oldI: ' + oldI.toString() + ' newI: ' + newI.toString());
         debugPrint("realNew: "+realNew.toString());
-        if (realNew == -1){
-          await localDB.db.reorderCards(card_id: _cards[oldI]['id'], setFirst: true, minOrder: _cards[0]['order']);
-        }
-        else{
-          await localDB.db.reorderCards(card_id: _cards[oldI]['id'], setAfter: _cards[newI]['order']);
-        }
+        var tile = _cards.removeAt(oldI);
+        debugPrint('tile: '+tile.toString());
+        debugPrint('pre: '+_cards.toString());
+        await localDB.db.reorderCards(cardsToUpdate: List.generate(_cards.length+1, (index) {
+          if (index<newI)
+            return {'order': index, 'id': _cards[index]['id']};
+          else if (index==newI)
+            return {'order': index, 'id': tile['id']};
+          else
+            return {'order': index, 'id': _cards[index-1]['id']};
+        }));
         setState((){_loading = true;});
       },
       children: tiles,
