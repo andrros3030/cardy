@@ -19,6 +19,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  nfc_in_flutter: any
   fluttertoast: ^8.0.7
   reorderables: any
   fluttericon: any

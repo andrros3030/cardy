@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:card_app_bsk/backend/hiveStorage.dart';
 import 'package:card_app_bsk/backend/database.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:nfc_in_flutter/nfc_in_flutter.dart';
 
 
 import 'main.dart';
@@ -18,6 +19,65 @@ class _mainPage extends State<mainPage> {
   List categories = [];
   Map cards = {};
   bool _loading = true;
+
+
+  Widget cardTile(Map _data){
+    String _id = _data['id'];
+    return GestureDetector(
+      onTap: (){
+
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color:Colors.white,
+            boxShadow: [BoxShadow(
+              color: Color.fromRGBO(228, 228, 231, 0.8),
+              blurRadius: 10.0,
+              spreadRadius: 2.0,
+              //offset: Offset(1,0)
+            )
+            ],
+            borderRadius: BorderRadius.circular(8)
+        ),
+        child: Card(
+          elevation: 0.0,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            child: Stack(
+                children: [
+                  Center(
+                    child: Text("Card: " + _id, style: green24,),
+                  ),
+                  Positioned(
+                      right: 0.0,
+                      top: 0.0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(2, (index) => Column(
+                                  children: List.generate(3, (index) => Container(
+                                    width: 4.0,
+                                    height: 4.0,
+                                    margin: EdgeInsets.only(bottom: 2, right: 2),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color.fromRGBO(46, 48, 52, 0.2)
+                                    ),
+                                  ))
+                              ))
+                          ),
+                        ],
+                      )
+                  )
+                ]
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget categoriesColumn(){
     List<Widget> tiles = List.generate(categories.length, (index) {
@@ -55,10 +115,7 @@ class _mainPage extends State<mainPage> {
           height: 160,
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 12),
-          child: Card(
-            elevation: 8.0,
-            child: Center(child: Text("Card: " + _id, style: green24,)),
-          ),
+          child: cardTile(_cards[index]),
         ),
       );
     });
