@@ -29,7 +29,6 @@ class _userPage extends State<userPage> {
       return null;
     return "введите настоящую почту";
   }
-
   Future availableEmail(String s) async{
     setState(() {
       _loading = true;
@@ -49,7 +48,6 @@ class _userPage extends State<userPage> {
       _loading = false;
     });
   }
-
   Widget emailField(){
     if (unchekedEmail)
       return Container(
@@ -115,6 +113,23 @@ class _userPage extends State<userPage> {
   }
 
 
+  Widget telephoneField() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.yellow,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Защитите свой кардхолдер - добавьте номер телефона. Мы будем использовать его в крайнем случае, когда понадобится подтверждение важного действия. Никакого спама!'),
+        ],
+      ),
+    );
+  }
+  //TODO: для каждого тайла добавить микрокнопку на верхнем уровне стэка - знак вопроса с прозрачностью, по нажатию на который будет открываться полноценное описание функции
   @override
   Widget build(context){
     double _width = MediaQuery.of(context).size.width;
@@ -141,6 +156,8 @@ class _userPage extends State<userPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     emailField(),
+                    SizedBox(height: 16,),
+                    telephoneField(),
                     SizedBox(height: 16,),
                     MaterialButton(
                       elevation: 8.0,
