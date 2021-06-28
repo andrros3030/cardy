@@ -85,12 +85,17 @@ class localDB {
     }
     return false;
   }
-  Future<bool> emailIsTakenGlobal({@required email})async{
+  Future<bool> emailIsTakenGlobal({@required email, bool strict = false, bool onRegister = true})async{
     await Future.delayed(const Duration(seconds: 2), (){});  //TODO: здесь вызываем глобальную базу для проверки, есть ли аккаунт с такой почтой
-    if (false){
-      uncheckedEmailWhileRegister = false;
+    bool internet = false; //
+    if (strict){ //если проверка жесткая (например из банера синхронизации почты или если есть интернет)
+      if (!internet)
+        return null;
+      return true;
     }
-    return false;
+    //if (onRegister)
+    //  uncheckedEmailWhileRegister = false; // этот флаг делаем false только при отрицательном ответе сервера (почта не зарегистрирована, инфа сотка, сразу после проверки занимаем место)
+    return false; // иначе, если проверка мягкая (нет интернета во время регистрации -> регаем пользователя, но ставим ему флаг
   }
   Future<bool> hasSecret({@required acc_id})async{
     Database db = await newDB;

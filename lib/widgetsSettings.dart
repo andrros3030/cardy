@@ -52,6 +52,7 @@ ThemeData mainTheme = ThemeData(
 //набор текстовых стилей, все основные стили прописаны здесь. Либо использовать напрямую, либо копировать с изменением параметров
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
 TextStyle green24 = TextStyle(fontSize: 24, color: backgroundColor);
+TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
 //TODO
 
 BuildContext contextForLogic;
@@ -97,13 +98,6 @@ webRunner(Widget home){
     appRuner(home);
 }
 
-//открывает ссылку на отправку
-openSupportEmail(BuildContext context, {bool noLocalization = false})async{
-  var url = 'mailto:';
-  //TODO: url += our_adress
-  await launch(url);
-}
-
 bool uncheckedEmailWhileRegister = true;
 bool unchekedEmail = true;
 double appBarHeight = 60;
@@ -116,13 +110,13 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
     obscureText: obscure,
     decoration: InputDecoration(
         suffixIcon: GestureDetector(
-        child: Container(
-          height: 20,
-          width: 20,
-          child: Icon(
-            obscure?FontAwesome5.eye:FontAwesome5.eye_slash, size:16
+          child: Container(
+            height: 20,
+            width: 20,
+            child: Icon(
+              obscure?FontAwesome5.eye:FontAwesome5.eye_slash, size:16
+            ),
           ),
-        ),
         onTap: onSuffixTap,
       )
     ),
@@ -170,5 +164,24 @@ Widget appBarUsual(BuildContext context, double _width){
           )
       ),
     ),
+  );
+}
+
+
+String supportEmail = 'support@cardy.com'; //TODO: fill our_adress
+//открывает ссылку на отправку
+openSupportEmail(BuildContext context, {bool noLocalization = false})async{
+  var url = 'mailto:';
+  url += supportEmail;
+  await launch(url);
+}
+Widget supportEmailLabel(BuildContext context){
+  return GestureDetector(
+    child: Container(
+      child: Text(supportEmail, style: link16,),
+    ),
+    onTap: (){
+      openSupportEmail(context);
+    },
   );
 }

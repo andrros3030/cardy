@@ -52,13 +52,12 @@ class _regScreen extends State<regScreen> {
   bool _loading = false;
   bool _showingBad = false;
   String _email = '';
-  @override
   String isEmail(String s){
     if (RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(s))
       return null;
     return "введите настоящую почту";
   }
-  Future<bool> availableEmail(String s) async{
+  Future availableEmail(String s) async{
     setState(() {
       _loading = true;
     });
@@ -74,6 +73,7 @@ class _regScreen extends State<regScreen> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     if (_showingBad){
       Future.delayed(Duration(seconds: 1)).then((value) {
