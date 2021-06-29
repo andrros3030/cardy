@@ -106,13 +106,14 @@ IT_CHANGE
         <node id="n0::n2">
           <data key="d6">
             <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-              <y:Geometry height="182.69149696" width="194.819072" x="519.1581518218404" y="-127.68694625792057"/>
+              <y:Geometry height="189.92289318641508" width="194.819072" x="519.1581518218404" y="-127.68694625792057"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="85.345703125" x="54.7366844375" xml:space="preserve" y="4.0">T_CATEGORY</y:NodeLabel>
-              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="136.310546875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="154.03515625" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
+              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="151.01171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="154.03515625" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
 PV_NAME
 PI_ORDER
+FK_ACCOUNT
 V_ICON
 V_ICON_COLOR
 V_BACKGROUND_COLOR
@@ -268,7 +269,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
     <edge id="n0::e1" source="n0::n3" target="n0::n2">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="1.4493120439987024" sy="-37.39406847999993" tx="-58.523687821840554" ty="-50.723773588453156">
+          <y:Path sx="1.4493120439987024" sy="-37.39406847999993" tx="-58.523687821840554" ty="-52.73155014631553">
             <y:Point x="747.6439999999998" y="10.535028633626212"/>
             <y:Point x="747.6439999999998" y="-87.06497136637373"/>
           </y:Path>
@@ -313,6 +314,34 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e1" source="n0" target="n0::n2">
+      <data key="d9"/>
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="-319.90444360750075" sy="-264.18273518586483" tx="0.0" ty="0.0">
+            <y:Point x="330.8445283018867" y="-107.23622822641516"/>
+            <y:Point x="506.46415094339613" y="-107.23622822641516"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="n0::e5" source="n0::n0" target="n0::n2">
+      <data key="d9"/>
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="5.064291307037195" sy="-89.277294599438" tx="-97.39816556164442" ty="-19.50214756187851">
+            <y:Point x="232.70415094339614" y="-98.19698294339629"/>
+            <y:Point x="482.10748014051" y="-98.19698294339629"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>

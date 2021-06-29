@@ -130,6 +130,18 @@ class localDB {
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
         "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
+    List _emptyCategories = await db.rawQuery('SELECT '
+        'ctg.PK_ID as ctgID, '
+        'ctg.PV_NAME as ctgName, '
+        'ctg.PI_ORDER as ctgORDER, '
+        'ctg.V_ICON as ctgIcon, '
+        'ctg.V_ICON_COLOR as ctgIconColor, '
+        'ctg.V_BACKGROUND_COLOR as ctgBG '
+        'from T_CATEGORY ctg '
+        'where ctg.FK_ACCOUNT = ? '
+        'and (SELECT count(lnk.PK_ID) FROM T_LINK lnk WHERE FK_CATEGORY = ctg.PK_ID and lnk.IL_DEL = 0) = 0 '
+        'and ctg.IL_DEL = 0', [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
+    debugPrint('_emptyCategories: ' + _emptyCategories.toString());
     debugPrint('_data: ' + _data.toString());
     Map<String, List> _cards = {};
     List<Map> _categories = [];
@@ -180,7 +192,11 @@ class localDB {
     await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
     getUserCardsNCategories(acc_id: creator_id); //debug tool
   }
-
+  createCategory(String creator_id) async {
+    Database db = await newDB;
+    await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), 'superName', creator_id, creator_id, timeStamp()]);
+    getUserCardsNCategories(acc_id: creator_id); //debug tool
+}
   //Метод который меняет очередность карт, на вход получает id карты и числовое значение order, на которое надо сменить ее значение
   reorderCards({@required List cardsToUpdate})async{
     Database db = await newDB;

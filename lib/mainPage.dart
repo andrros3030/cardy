@@ -85,13 +85,18 @@ class _mainPage extends State<mainPage> {
         //TODO: implement list building
       );
     });
-    tiles.add(Container(
-      height: 160,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 12),
-      child: Card(
-        elevation: 8.0,
-        child: Center(child: Text("Добавить категорию", style: green24,)),
+    tiles.add(GestureDetector(
+      onTap: (){
+        localDB.db.createCategory(accountGuid);
+      },
+      child: Container(
+        height: 160,
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Card(
+          elevation: 8.0,
+          child: Center(child: Text("Добавить категорию", style: green24,)),
+        ),
       ),
     ));
     return Column(
