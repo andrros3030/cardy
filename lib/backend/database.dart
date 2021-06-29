@@ -109,7 +109,7 @@ class localDB {
       exit(1);
     }
   }
-  Future<Map> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. [{ctgID: "", ctgName: "", ctgOrder: "", ctgImage: "", ctgCards: [{cad:"cardID", lnkID: "", cname: "". corder: "", ...}, ... ]}, ..., {ctgID: "unsorted", ctgCards: [...]}]
+  Future<Map> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. {cards: {cat1: [{card1}, {card2}...], cat2: [{card3}, {card4} ...]}, categories: [{cat1}, {cat2}]}
     Database db = await newDB;
     List _data = await db.rawQuery('SELECT '
         'access.PI_PRIORITY as PRIORITY, '
@@ -141,8 +141,6 @@ class localDB {
         'where ctg.FK_ACCOUNT = ? '
         'and (SELECT count(lnk.PK_ID) FROM T_LINK lnk WHERE FK_CATEGORY = ctg.PK_ID and lnk.IL_DEL = 0) = 0 '
         'and ctg.IL_DEL = 0', [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
-    debugPrint('_emptyCategories: ' + _emptyCategories.toString());
-    debugPrint('_data: ' + _data.toString());
     Map<String, List> _cards = {};
     List<Map> _categories = [];
     for (int i = 0; i<_data.length; i++){
@@ -169,8 +167,17 @@ class localDB {
         _cards[_key] = [_crd];
       }
     }
-    debugPrint('_cards: ' + _cards.toString());
-    debugPrint('_categories: ' + _categories.toString());
+    for (int i = 0; i<_emptyCategories.length; i++){
+      _categories.add({
+        'id': _emptyCategories[i]['ctgID'],
+        'name': _emptyCategories[i]['ctgName'],
+        'order': _emptyCategories[i]['ctgORDER'],
+        'icon': _emptyCategories[i]['ctgIcon'],
+        'iconColor': _emptyCategories[i]['ctgIconColor'],
+        'backgroundColor': _emptyCategories[i]['ctgBG'],
+      });
+    }
+    debugPrint('result: ' + {'cards':_cards, 'categories':_categories}.toString());
     return {'cards':_cards, 'categories':_categories};
   }
   Future<String> createNewUser({@required String email, @required String hash_pass}) async {
@@ -196,7 +203,7 @@ class localDB {
     Database db = await newDB;
     await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), 'superName', creator_id, creator_id, timeStamp()]);
     getUserCardsNCategories(acc_id: creator_id); //debug tool
-}
+}//TODO: дополнить функцию необходимыми параметрами, сейчас заглушка
   //Метод который меняет очередность карт, на вход получает id карты и числовое значение order, на которое надо сменить ее значение
   reorderCards({@required List cardsToUpdate})async{
     Database db = await newDB;
