@@ -25,7 +25,9 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
 
 
   Future<void> tryAuth() async{
-    if (await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass))){
+    String _tmp = await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass));
+    if (_tmp.length > 0){
+      accountGuid = _tmp;
       saveCreditionalsIfNeeded(email: log, password: getHash(_pass));
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
@@ -150,7 +152,6 @@ void start() async{
   pass = '';
   await localDB.db.InitDatabase();
   await initHive();
-  debugPrint('account: ' + accountEmail.toString() + ' ' + pass.toString() + ' authorized: ' + authorized.toString());
   if (needAutoRegistration)
     appRuner(onBoarding());
   else if (! authorized)
@@ -159,7 +160,9 @@ void start() async{
     else
       appRuner(AuthorizationScreen());
   else{
-    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass)){
+    String _tmp = await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass);
+    if (_tmp.length > 0){
+      accountGuid = _tmp;
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }

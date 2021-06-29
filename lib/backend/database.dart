@@ -66,24 +66,24 @@ class localDB {
     return DateTime.now().toUtc().toString();
   }
 
-  Future<bool> accountExistsLocal({@required email, hashPass}) async{
+  Future<String> accountExistsLocal({@required email, hashPass}) async{
     Database db = await newDB;
     List _data;
     if (hashPass == null) {
       _data = await db.rawQuery(
           "SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ?", [email]);
       if (_data.length != 0){
-        return true;
+        return 'exists';
       }
-      return false;
+      return '';
     }
     else
       _data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ?", [email, hashPass]);
     if (_data.length != 0){
-      accountGuid = _data[0]["PK_ID"];
-      return true;
+      debugPrint('accounts: '+_data.toString());
+      return _data[0]["PK_ID"];
     }
-    return false;
+    return '';
   }
   Future<bool> emailIsTakenGlobal({@required email, bool strict = false, bool onRegister = true})async{
     await Future.delayed(const Duration(seconds: 2), (){});  //TODO: здесь вызываем глобальную базу для проверки, есть ли аккаунт с такой почтой
@@ -110,6 +110,7 @@ class localDB {
     }
   }
   Future<Map> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. {cards: {cat1: [{card1}, {card2}...], cat2: [{card3}, {card4} ...]}, categories: [{cat1}, {cat2}]}
+    debugPrint('inpt: '+acc_id);
     Database db = await newDB;
     List _data = await db.rawQuery('SELECT '
         'access.PI_PRIORITY as PRIORITY, '
@@ -122,11 +123,11 @@ class localDB {
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
         'crd.PI_ORDER as CORDER '    //TODO: остальные данные карты
-        'from T_CARD crd LEFT join '
+        'from T_CARD crd LEFT JOIN '
         'T_CATEGORY ctg on crd.FK_CATEGORY = ctg.pk_id JOIN '
         'T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN '
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
-        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
+        "WHERE acc.PK_ID = ? "
         "order BY ctg.pi_order asc", [acc_id]);
     List _emptyCategories = await db.rawQuery('SELECT '
         'ctg.PK_ID as ctgID, '
@@ -137,8 +138,7 @@ class localDB {
         'ctg.V_BACKGROUND_COLOR as ctgBG '
         'from T_CATEGORY ctg '
         'where ctg.FK_ACCOUNT = ? '
-        'and (SELECT count(crd.PK_ID) FROM T_CARD crd WHERE FK_CATEGORY = ctg.PK_ID and crd.IL_DEL = 0) = 0 '
-        'and ctg.IL_DEL = 0', [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
+        "and (SELECT count(crd.PK_ID) FROM T_CARD crd WHERE FK_CATEGORY = ctg.PK_ID) = 0 ", [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
     Map<String, List> _cards = {};
     List<Map> _categories = [];
     for (int i = 0; i<_data.length; i++){
@@ -190,6 +190,7 @@ class localDB {
     return _id;
   }
   createCard({@required String creator_id, @required String cardName, String cardComment})async{
+    debugPrint('creator: ' + creator_id);
     Database db = await newDB;
     String card_id = guid();
     await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
@@ -203,7 +204,7 @@ class localDB {
 }//TODO: дополнить функцию необходимыми параметрами
   moveCardToCategory({@required String card_id, @required String category_id, @required String user})async{
     Database db = await newDB;
-    await db.rawUpdate('UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ? AND IL_DEL = 0', [category_id, user, timeStamp(), card_id]);
+    await db.rawUpdate("UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ?", [category_id, user, timeStamp(), card_id]);
     return;
   }
 

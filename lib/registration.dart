@@ -62,8 +62,9 @@ class _regScreen extends State<regScreen> {
       _loading = true;
     });
     debugPrint('process started');
-    bool res = await localDB.db.accountExistsLocal(email: _email);
-    if (!res){
+    String _res = await localDB.db.accountExistsLocal(email: _email);
+    bool res = true;
+    if (_res.length < 1){
       res = await localDB.db.emailIsTakenGlobal(email: _email);
     }
     setState(() {
