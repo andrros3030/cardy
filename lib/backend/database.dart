@@ -119,16 +119,14 @@ class localDB {
         'ctg.V_ICON as ctgIcon, '
         'ctg.V_ICON_COLOR as ctgIconColor, '
         'ctg.V_BACKGROUND_COLOR as ctgBG, '
-        'lnk.PK_ID as lnkID, '
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
         'crd.PI_ORDER as CORDER '    //TODO: остальные данные карты
         'from T_CARD crd LEFT join '
-        'T_LINK lnk on crd.PK_ID = lnk.FK_CARD LEFT JOIN '
-        'T_CATEGORY ctg on lnk.FK_CATEGORY = ctg.pk_id JOIN '
+        'T_CATEGORY ctg on crd.FK_CATEGORY = ctg.pk_id JOIN '
         'T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN '
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
-        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (lnk.IL_DEL = 0 or lnk.IL_DEL is NULL)AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
+        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
     List _emptyCategories = await db.rawQuery('SELECT '
         'ctg.PK_ID as ctgID, '
@@ -139,7 +137,7 @@ class localDB {
         'ctg.V_BACKGROUND_COLOR as ctgBG '
         'from T_CATEGORY ctg '
         'where ctg.FK_ACCOUNT = ? '
-        'and (SELECT count(lnk.PK_ID) FROM T_LINK lnk WHERE FK_CATEGORY = ctg.PK_ID and lnk.IL_DEL = 0) = 0 '
+        'and (SELECT count(crd.PK_ID) FROM T_CARD crd WHERE FK_CATEGORY = ctg.PK_ID and crd.IL_DEL = 0) = 0 '
         'and ctg.IL_DEL = 0', [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
     Map<String, List> _cards = {};
     List<Map> _categories = [];
@@ -148,7 +146,6 @@ class localDB {
       Map _crd = {
         'id': _data[i]['CAD'],
         'access': _data[i]['PRIORITY'],
-        'lnkID': _data[i]['lnkID'],
         'name': _data[i]['CNAME'],
         'order': _data[i]['CORDER'],
       };
@@ -199,11 +196,18 @@ class localDB {
     await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
     getUserCardsNCategories(acc_id: creator_id); //debug tool
   }
-  createCategory(String creator_id) async {
+  createCategory({@required String creator_id, @required String cardName}) async {
     Database db = await newDB;
-    await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), 'superName', creator_id, creator_id, timeStamp()]);
+    await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), cardName, creator_id, creator_id, timeStamp()]);
     getUserCardsNCategories(acc_id: creator_id); //debug tool
-}//TODO: дополнить функцию необходимыми параметрами, сейчас заглушка
+}//TODO: дополнить функцию необходимыми параметрами
+  moveCardToCategory({@required String card_id, @required String category_id, @required String user})async{
+    Database db = await newDB;
+    await db.rawUpdate('UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ? AND IL_DEL = 0', [category_id, user, timeStamp(), card_id]);
+    return;
+  }
+
+
   //Метод который меняет очередность карт, на вход получает id карты и числовое значение order, на которое надо сменить ее значение
   reorderCards({@required List cardsToUpdate})async{
     Database db = await newDB;

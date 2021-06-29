@@ -19,14 +19,61 @@ class _mainPage extends State<mainPage> {
   List categories = [];
   Map cards = {};
   bool _loading = true;
+  double _width;
 
+  Widget counter(String key){
+    return Container(
+      alignment: Alignment.center,
+      child: Text(cards.containsKey(key)?cards[key].length.toString():'0', style: white20,),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: backgroundColor),
+      padding: EdgeInsets.all(4),
+      width: 40,
+      height: 40,
+    );
+  }
+
+  Widget categoryTile(Map _data){
+    return DragTarget<String>(
+        builder: (
+            BuildContext context,
+            List<dynamic> accepted,
+            List<dynamic> rejected,
+            ) {
+          return GestureDetector(
+            child: Card(
+              elevation: 8.0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Stack(
+                  children: [
+                    Center(child: Text(_data['name']),),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: counter(_data['id']),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            onTap: (){
+
+            },
+          );
+        },
+        onAccept: (String data) async{
+          debugPrint('data: '+ data);
+          await localDB.db.moveCardToCategory(card_id: data, category_id: _data['id'], user: accountGuid);
+          setState(() {_loading = true;});
+        },
+    );
+  }
 
   Widget cardTile(Map _data){
     String _id = _data['id'];
-    return GestureDetector(
-      onTap: (){
-
-      },
+    Widget _item = Container(
+      height: 160,
+      width: _width*0.9,
+      padding: EdgeInsets.symmetric(vertical: 12),
       child: Container(
         decoration: BoxDecoration(
             color:Colors.white,
@@ -77,17 +124,36 @@ class _mainPage extends State<mainPage> {
         ),
       ),
     );
+    return Draggable<String>(
+      feedback: _item,
+      data: _id,
+      childWhenDragging: Container(
+        decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(30)),
+        height: 160,
+        width: _width*0.9,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Text('Перетените карту в категорию и отпустите. Чтобы сменить очередность, удерживайте карту чуть-чуть дольше)'),
+      ),
+      child: GestureDetector(
+        onTap: (){
+
+        },
+        child: _item
+      ),
+    );
   }
 
   Widget categoriesColumn(){
     List<Widget> tiles = List.generate(categories.length, (index) {
-      return Container(
-        //TODO: implement list building
-      );
+      return categoryTile(categories[index]);
     });
     tiles.add(GestureDetector(
-      onTap: (){
-        localDB.db.createCategory(accountGuid);
+      onTap: ()async{
+        await localDB.db.createCategory(cardName: 'super name', creator_id: accountGuid);
+        setState(() {
+          _loading = true;
+        });
       },
       child: Container(
         height: 160,
@@ -116,12 +182,7 @@ class _mainPage extends State<mainPage> {
       return ReorderableWidget(
         key: ValueKey(_id),
         reorderable: true,
-        child: Container(
-          height: 160,
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: cardTile(_cards[index]),
-        ),
+        child: cardTile(_cards[index]),
       );
     });
     return ReorderableColumn(
@@ -157,7 +218,7 @@ class _mainPage extends State<mainPage> {
 
   @override
   Widget build(BuildContext context) {
-    double _width = MediaQuery.of(context).size.width;
+    _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     if (_loading){
       loadData();
@@ -202,14 +263,8 @@ class _mainPage extends State<mainPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Неотсортированные карты: '),
-                  Container(
-                    alignment: Alignment.center,
-                    child: Text(cards.containsKey(null)?cards[null].length.toString():'0', style: white20,),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: backgroundColor),
-                    padding: EdgeInsets.all(4),
-                    width: 40,
-                    height: 40,
-                ),],
+                  counter(null),
+                ],
               ),
             ),
             SizedBox(height: 6,),
