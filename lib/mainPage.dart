@@ -148,28 +148,54 @@ class _mainPage extends State<mainPage> {
       return _item;
   }
   Widget categoriesColumn(){
-    List<Widget> tiles = List.generate(categories.length, (index) {
-      return categoryTile(categories[index]);
+    List _cats = List.from(categories);
+    _cats.sort((a, b){
+      return a['order']<b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
     });
-    tiles.add(GestureDetector(
-      onTap: ()async{
-        await localDB.db.createCategory(cardName: 'super name', creator_id: accountGuid);
-        setState(() {
-          _loading = true;
-        });
-      },
-      child: Container(
-        height: 160,
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 12),
-        child: Card(
-          elevation: 8.0,
-          child: Center(child: Text("Добавить категорию", style: green24,)),
-        ),
-      ),
-    ));
+    List<Widget> tiles = List.generate(_cats.length, (index) {
+      return ReorderableWidget(
+        key: ValueKey(_cats[index]['id']),
+        reorderable: true,
+        child: categoryTile(_cats[index]),
+      );
+    });
     return Column(
-      children: tiles,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ReorderableColumn(
+          onReorder: (int oldI, int newI) async{
+            int realNew = newI<oldI?newI-1:newI;
+            var tile = _cats.removeAt(oldI);
+            await localDB.db.reorderItems(categoriesToUpdate: List.generate(_cats.length+1, (index) {
+              if (index<newI)
+                return {'order': index, 'id': _cats[index]['id']};
+              else if (index==newI)
+                return {'order': index, 'id': tile['id']};
+              else
+                return {'order': index, 'id': _cats[index-1]['id']};
+            }));
+            setState((){_loading = true;});
+          },
+          children: tiles,
+        ),
+        GestureDetector(
+          onTap: ()async{
+            await localDB.db.createCategory(cardName: 'super name', creator_id: accountGuid);
+            setState(() {
+              _loading = true;
+            });
+          },
+          child: Container(
+            height: 160,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Card(
+              elevation: 8.0,
+              child: Center(child: Text("Добавить категорию", style: green24,)),
+            ),
+          ),
+        ),
+      ],
     );
   }
   Widget cardsColumn(String key){ //Category Key here
@@ -190,12 +216,8 @@ class _mainPage extends State<mainPage> {
     return ReorderableColumn(
       onReorder: (int oldI, int newI) async{
         int realNew = newI<oldI?newI-1:newI;
-        debugPrint('oldI: ' + oldI.toString() + ' newI: ' + newI.toString());
-        debugPrint("realNew: "+realNew.toString());
         var tile = _cards.removeAt(oldI);
-        debugPrint('tile: '+tile.toString());
-        debugPrint('pre: '+_cards.toString());
-        await localDB.db.reorderCards(cardsToUpdate: List.generate(_cards.length+1, (index) {
+        await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (index) {
           if (index<newI)
             return {'order': index, 'id': _cards[index]['id']};
           else if (index==newI)
@@ -344,28 +366,36 @@ class _mainPage extends State<mainPage> {
         ),
       );
     else{
-      return Scaffold(
-        appBar: appBarUsual(context, _width, child: searcher(_currentState), onBack: (){setState(() {
-          _currentState = '';
-        });}),
-        body: _loading?Center(child: CircularProgressIndicator()):Container(
-          width: _width,
-          height: _height - appBarHeight,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-          child: ListView(
-            children: [
-              cardsColumn(_currentState),
-            ],
+      return WillPopScope(
+        onWillPop: ()async{
+          setState(() {
+            _currentState = '';
+          });
+          return false;
+        },
+        child: Scaffold(
+          appBar: appBarUsual(context, _width, child: searcher(_currentState), onBack: (){setState(() {
+            _currentState = '';
+          });}),
+          body: _loading?Center(child: CircularProgressIndicator()):Container(
+            width: _width,
+            height: _height - appBarHeight,
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+            child: ListView(
+              children: [
+                cardsColumn(_currentState),
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: ()async{
-            await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard', category: _currentState);
-            setState(() {
-              _loading = true;
-            });
-          },
+          floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: ()async{
+              await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard', category: _currentState);
+              setState(() {
+                _loading = true;
+              });
+            },
+          ),
         ),
       );
     }

@@ -71,14 +71,14 @@ class localDB {
     List _data;
     if (hashPass == null) {
       _data = await db.rawQuery(
-          "SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ?", [email]);
+          "SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND IL_DEL = 0", [email]);
       if (_data.length != 0){
         return 'exists';
       }
       return '';
     }
     else
-      _data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ?", [email, hashPass]);
+      _data = await db.rawQuery("SELECT PK_ID FROM T_ACCOUNT WHERE PV_EMAIL = ? AND PV_PSWD = ? AND IL_DEL = 0", [email, hashPass]);
     if (_data.length != 0){
       debugPrint('accounts: '+_data.toString());
       return _data[0]["PK_ID"];
@@ -99,7 +99,7 @@ class localDB {
   }
   Future<bool> hasSecret({@required acc_id})async{
     Database db = await newDB;
-    List _data = await db.rawQuery("SELECT V_SECRET FROM T_ACCOUNT WHERE PK_ID = ?", [acc_id]);
+    List _data = await db.rawQuery("SELECT V_SECRET FROM T_ACCOUNT WHERE PK_ID = ? AND IL_DEL = 0", [acc_id]);
     if (_data.length != 0){
       if (_data[0]["V_SECRET"].toString().length > 0 && _data[0]["V_SECRET"].toString().toLowerCase() != 'null')
         return true;
@@ -110,7 +110,6 @@ class localDB {
     }
   }
   Future<Map> getUserCardsNCategories({@required acc_id})async{ //на выходе д.б. {cards: {cat1: [{card1}, {card2}...], cat2: [{card3}, {card4} ...]}, categories: [{cat1}, {cat2}]}
-    debugPrint('inpt: '+acc_id);
     Database db = await newDB;
     List _data = await db.rawQuery('SELECT '
         'access.PI_PRIORITY as PRIORITY, '
@@ -127,7 +126,7 @@ class localDB {
         'T_CATEGORY ctg on crd.FK_CATEGORY = ctg.pk_id JOIN '
         'T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN '
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
-        "WHERE acc.PK_ID = ? "
+        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
     List _emptyCategories = await db.rawQuery('SELECT '
         'ctg.PK_ID as ctgID, '
@@ -138,7 +137,8 @@ class localDB {
         'ctg.V_BACKGROUND_COLOR as ctgBG '
         'from T_CATEGORY ctg '
         'where ctg.FK_ACCOUNT = ? '
-        "and (SELECT count(crd.PK_ID) FROM T_CARD crd WHERE FK_CATEGORY = ctg.PK_ID) = 0 ", [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
+        'and (SELECT count(crd.PK_ID) FROM T_CARD crd WHERE FK_CATEGORY = ctg.PK_ID and crd.IL_DEL = 0) = 0 '
+        'and ctg.IL_DEL = 0', [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
     Map<String, List> _cards = {};
     List<Map> _categories = [];
     for (int i = 0; i<_data.length; i++){
@@ -174,7 +174,6 @@ class localDB {
         'backgroundColor': _emptyCategories[i]['ctgBG'],
       });
     }
-    debugPrint('result: ' + {'cards':_cards, 'categories':_categories}.toString());
     return {'cards':_cards, 'categories':_categories};
   }
   Future<String> createNewUser({@required String email, @required String hash_pass}) async {
@@ -210,15 +209,20 @@ class localDB {
 }//TODO: дополнить функцию необходимыми параметрами
   moveCardToCategory({@required String card_id, @required String category_id, @required String user})async{
     Database db = await newDB;
-    await db.rawUpdate("UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ?", [category_id, user, timeStamp(), card_id]);
+    await db.rawUpdate("UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ? AND IL_DEL = 0", [category_id, user, timeStamp(), card_id]);
     return;
   }
 
   //Метод который меняет очередность карт, на вход получает id карты и числовое значение order, на которое надо сменить ее значение
-  reorderCards({@required List cardsToUpdate})async{
+  reorderItems({List cardsToUpdate, List categoriesToUpdate})async{
     Database db = await newDB;
-    for (var el in cardsToUpdate){
-      await db.rawUpdate('UPDATE T_CARD SET PI_ORDER = ? WHERE PK_ID = ?', [el['order'], el['id']]);
-    }
-  } //TODO: дублировать функцию для категорий?
+    if (cardsToUpdate != null)
+      for (var el in cardsToUpdate){
+        await db.rawUpdate('UPDATE T_CARD SET PI_ORDER = ? WHERE PK_ID = ? AND IL_DEL = 0', [el['order'], el['id']]);
+      }
+    else
+      for (var el in categoriesToUpdate){
+        await db.rawUpdate('UPDATE T_CATEGORY SET PI_ORDER = ? WHERE PK_ID = ? AND IL_DEL = 0', [el['order'], el['id']]);
+      }
+  }
 }
