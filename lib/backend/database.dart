@@ -189,11 +189,17 @@ class localDB {
     saveCreditionals(email: email, password: hash_pass);
     return _id;
   }
-  createCard({@required String creator_id, @required String cardName, String cardComment})async{
+  createCard({@required String creator_id, @required String cardName, String cardComment, String category})async{
     debugPrint('creator: ' + creator_id);
     Database db = await newDB;
     String card_id = guid();
-    await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
+    if (category == null)
+      await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
+    else
+      try{
+        await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, FK_CATEGORY, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)', [card_id, cardName, category, cardComment, creator_id, timeStamp()]);
+      }
+    catch(e){}
     await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
     getUserCardsNCategories(acc_id: creator_id); //debug tool
   }
@@ -207,7 +213,6 @@ class localDB {
     await db.rawUpdate("UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ?", [category_id, user, timeStamp(), card_id]);
     return;
   }
-
 
   //Метод который меняет очередность карт, на вход получает id карты и числовое значение order, на которое надо сменить ее значение
   reorderCards({@required List cardsToUpdate})async{

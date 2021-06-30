@@ -123,19 +123,20 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
   );
 }
 
-Widget appBarUsual(BuildContext context, double _width){
+Widget appBarUsual(BuildContext context, double _width, {Widget child, Function onBack}){
   return PreferredSize(
     preferredSize: Size(_width, appBarHeight),
     child: Container(
       color: primaryDark,
       child: SafeArea(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            width: _width,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,
               children: [
-                Navigator.canPop(context)?GestureDetector(
+                (Navigator.canPop(context) || onBack != null)?GestureDetector(
                   child: Container(
                     width: 40,
                     height: 40,
@@ -144,7 +145,7 @@ Widget appBarUsual(BuildContext context, double _width){
                       color: Colors.white,
                     ),
                   ),
-                  onTap: (){
+                  onTap: onBack != null? onBack: (){
                     Navigator.of(context).pop();
                   },
                 ):Container(
@@ -152,13 +153,14 @@ Widget appBarUsual(BuildContext context, double _width){
                   height: 40,
                   color: Colors.transparent,
                 ),
-                GestureDetector(
+                child == null?SizedBox():child,
+                child == null?GestureDetector(
                   child: Container(
                     width: 40,
                     height: 40,
                     color: Colors.transparent,
                   ),
-                ),
+                ):SizedBox(),
               ],
             ),
           )

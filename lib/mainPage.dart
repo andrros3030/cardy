@@ -20,6 +20,7 @@ class _mainPage extends State<mainPage> {
   Map cards = {};
   bool _loading = true;
   double _width;
+  String _currentState = '';
 
   Widget counter(String key){
     return Container(
@@ -31,7 +32,6 @@ class _mainPage extends State<mainPage> {
       height: 40,
     );
   }
-
   Widget categoryTile(Map _data){
     return DragTarget<String>(
         builder: (
@@ -56,7 +56,9 @@ class _mainPage extends State<mainPage> {
               ),
             ),
             onTap: (){
-
+              setState(() {
+                _currentState = _data['id'];
+              });
             },
           );
         },
@@ -67,83 +69,84 @@ class _mainPage extends State<mainPage> {
         },
     );
   }
-
   Widget cardTile(Map _data){
     String _id = _data['id'];
-    Widget _item = Container(
-      height: 160,
-      width: _width*0.9,
-      padding: EdgeInsets.symmetric(vertical: 12),
+    Widget _item = GestureDetector(
       child: Container(
-        decoration: BoxDecoration(
-            color:Colors.white,
-            boxShadow: [BoxShadow(
-              color: Color.fromRGBO(228, 228, 231, 0.8),
-              blurRadius: 10.0,
-              spreadRadius: 2.0,
-              //offset: Offset(1,0)
-            )
-            ],
-            borderRadius: BorderRadius.circular(8)
-        ),
-        child: Card(
-          elevation: 0.0,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            child: Stack(
-                children: [
-                  Center(
-                    child: Text("Card: " + _id, style: green24,),
-                  ),
-                  Positioned(
-                      right: 0.0,
-                      top: 0.0,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(2, (index) => Column(
-                                  children: List.generate(3, (index) => Container(
-                                    width: 4.0,
-                                    height: 4.0,
-                                    margin: EdgeInsets.only(bottom: 2, right: 2),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Color.fromRGBO(46, 48, 52, 0.2)
-                                    ),
-                                  ))
-                              ))
-                          ),
-                        ],
-                      )
-                  )
-                ]
+        height: 160,
+        width: _width*0.9,
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Container(
+          decoration: BoxDecoration(
+              color:Colors.white,
+              boxShadow: [BoxShadow(
+                color: Color.fromRGBO(228, 228, 231, 0.8),
+                blurRadius: 10.0,
+                spreadRadius: 2.0,
+                //offset: Offset(1,0)
+              )
+              ],
+              borderRadius: BorderRadius.circular(8)
+          ),
+          child: Card(
+            elevation: 0.0,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              child: Stack(
+                  children: [
+                    Center(
+                      child: Text("Card: " + _id, style: green24,),
+                    ),
+                    Positioned(
+                        right: 0.0,
+                        top: 0.0,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(2, (index) => Column(
+                                    children: List.generate(3, (index) => Container(
+                                      width: 4.0,
+                                      height: 4.0,
+                                      margin: EdgeInsets.only(bottom: 2, right: 2),
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Color.fromRGBO(46, 48, 52, 0.2)
+                                      ),
+                                    ))
+                                ))
+                            ),
+                          ],
+                        )
+                    )
+                  ]
+              ),
             ),
           ),
         ),
       ),
-    );
-    return Draggable<String>(
-      feedback: _item,
-      data: _id,
-      childWhenDragging: Container(
-        decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(30)),
-        height: 160,
-        width: _width*0.9,
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Text('Перетените карту в категорию и отпустите. Чтобы сменить очередность, удерживайте карту чуть-чуть дольше)'),
-      ),
-      child: GestureDetector(
-        onTap: (){
+      onTap: (){
 
-        },
-        child: _item
-      ),
+      },
     );
+    if (_currentState.length < 1)
+      return Draggable<String>(
+        feedback: _item,
+        data: _id,
+        childWhenDragging: Container(
+          decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(30)),
+          height: 160,
+          width: _width*0.9,
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Text('Перетените карту в категорию и отпустите. Чтобы сменить очередность, удерживайте карту чуть-чуть дольше)'),
+        ),
+        child: _item,
+      );
+    else
+      return _item;
   }
-
   Widget categoriesColumn(){
     List<Widget> tiles = List.generate(categories.length, (index) {
       return categoryTile(categories[index]);
@@ -169,7 +172,6 @@ class _mainPage extends State<mainPage> {
       children: tiles,
     );
   }
-
   Widget cardsColumn(String key){ //Category Key here
     if (!cards.containsKey(key))
       return Container();
@@ -206,6 +208,29 @@ class _mainPage extends State<mainPage> {
       children: tiles,
     );
   }
+  Widget searcher(String _state){
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      width: _width - 96,
+      height: 30,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      alignment: Alignment.center,
+      child: TextFormField(
+        maxLines: 1,
+        decoration: InputDecoration(
+          suffixIcon: Container(
+            child: Icon(
+              Icons.search,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   loadData()async{
     Map _tmp = await localDB.db.getUserCardsNCategories(acc_id: accountGuid);
@@ -223,99 +248,126 @@ class _mainPage extends State<mainPage> {
     if (_loading){
       loadData();
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Container(
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          width: _width*0.8,
-          height: 30,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          alignment: Alignment.center,
-          child: TextFormField(
-            maxLines: 1,
-            decoration: InputDecoration(
-              suffixIcon: Container(
-                child: Icon(
-                  Icons.search,
-                  color: Colors.grey,
+    if (_currentState.length < 1)
+      return Scaffold(
+        appBar: AppBar(
+          title: Container(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            width: _width*0.8,
+            height: 30,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: TextFormField(
+              maxLines: 1,
+              decoration: InputDecoration(
+                suffixIcon: Container(
+                  child: Icon(
+                    Icons.search,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      body: _loading?Center(child: CircularProgressIndicator()):Container(
-        width: _width,
-        height: _height - appBarHeight,
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-        child: ListView(
-          children: [
-            categoriesColumn(),
-            SizedBox(height: 6,),
-            Divider(thickness: 4.0, height: 6.5,),
-            Container(
-              width: _width,
-              alignment: Alignment.topLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Неотсортированные карты: '),
-                  counter(null),
-                ],
-              ),
-            ),
-            SizedBox(height: 6,),
-            cardsColumn(null),
-          ],
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: primaryDark,
-              ),
-              child: Text(
-                'Drawer Header',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+        body: _loading?Center(child: CircularProgressIndicator()):Container(
+          width: _width,
+          height: _height - appBarHeight,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+          child: ListView(
+            children: [
+              categoriesColumn(),
+              SizedBox(height: 6,),
+              Divider(thickness: 4.0, height: 6.5,),
+              Container(
+                width: _width,
+                alignment: Alignment.topLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Неотсортированные карты: '),
+                    counter(null),
+                  ],
                 ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('User settings'),
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => userPage()));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Exit'),
-              onTap: (){
-                closeAccount();
-                start();
-                while (Navigator.of(context).canPop())
-                  Navigator.of(context).pop();
-              },
-            ),
-          ],
+              SizedBox(height: 6,),
+              cardsColumn(null),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: ()async{
-          await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard');
-          setState(() {
-            _loading = true;
-          });
-        },
-      ),
-    );
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: primaryDark,
+                ),
+                child: Text(
+                  'Drawer Header',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text('User settings'),
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => userPage()));
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Exit'),
+                onTap: (){
+                  closeAccount();
+                  start();
+                  while (Navigator.of(context).canPop())
+                    Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: ()async{
+            await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard');
+            setState(() {
+              _loading = true;
+            });
+          },
+        ),
+      );
+    else{
+      return Scaffold(
+        appBar: appBarUsual(context, _width, child: searcher(_currentState), onBack: (){setState(() {
+          _currentState = '';
+        });}),
+        body: _loading?Center(child: CircularProgressIndicator()):Container(
+          width: _width,
+          height: _height - appBarHeight,
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+          child: ListView(
+            children: [
+              cardsColumn(_currentState),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: ()async{
+            await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard', category: _currentState);
+            setState(() {
+              _loading = true;
+            });
+          },
+        ),
+      );
+    }
   }
 }
