@@ -122,9 +122,9 @@ class localDB {
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
         'crd.PI_ORDER as CORDER '    //TODO: остальные данные карты
-        'from T_CARD crd LEFT JOIN '
-        'T_CATEGORY ctg on crd.FK_CATEGORY = ctg.pk_id JOIN '
-        'T_ACCESS access on crd.PK_ID = access.FK_CARD JOIN '
+        'from T_CARD crd JOIN '
+        'T_ACCESS access on crd.PK_ID = access.FK_CARD LEFT JOIN '
+        'T_CATEGORY ctg on access.FK_CATEGORY = ctg.pk_id JOIN '
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
         "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
@@ -137,8 +137,8 @@ class localDB {
         'ctg.V_BACKGROUND_COLOR as ctgBG '
         'from T_CATEGORY ctg '
         'where ctg.FK_ACCOUNT = ? '
-        'and (SELECT count(crd.PK_ID) FROM T_CARD crd WHERE FK_CATEGORY = ctg.PK_ID and crd.IL_DEL = 0) = 0 '
-        'and ctg.IL_DEL = 0', [acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
+        'and (SELECT count(crd.PK_ID) FROM T_CARD crd JOIN T_ACCESS access on crd.PK_ID = access.FK_CARD WHERE FK_CATEGORY = ctg.PK_ID and crd.IL_DEL = 0 AND access.IL_DEL = 0 AND access.FK_ACCOUNT = ?) = 0 '
+        'and ctg.IL_DEL = 0', [acc_id, acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
     Map<String, List> _cards = {};
     List<Map> _categories = [];
     for (int i = 0; i<_data.length; i++){
@@ -179,7 +179,7 @@ class localDB {
   Future<String> createNewUser({@required String email, @required String hash_pass}) async {
     Database db = await newDB;
     String _id = guid();
-    await db.rawInsert("INSERT INTO T_ACCOUNT(PK_ID, PV_EMAIL, PV_PSWD, PT_REG, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)", [_id.toLowerCase(), email.toLowerCase(), hash_pass.toLowerCase(), timeStamp(), 'application', timeStamp()]);
+    await db.rawInsert("INSERT INTO T_ACCOUNT(PK_ID, PV_EMAIL, PV_PSWD, PT_REG, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)", [_id, email.toLowerCase(), hash_pass, timeStamp(), 'application', timeStamp()]);
     if (uncheckedEmailWhileRegister)
       saveBadEmail(email);
     else{
@@ -189,18 +189,16 @@ class localDB {
     return _id;
   }
   createCard({@required String creator_id, @required String cardName, String cardComment, String category})async{
-    debugPrint('creator: ' + creator_id);
     Database db = await newDB;
     String card_id = guid();
+    await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
     if (category == null)
-      await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
+      await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
     else
       try{
-        await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, FK_CATEGORY, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)', [card_id, cardName, category, cardComment, creator_id, timeStamp()]);
+        await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, FK_CATEGORY, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)', [guid(), creator_id, card_id, category, creator_id, timeStamp()]);
       }
     catch(e){}
-    await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
-    getUserCardsNCategories(acc_id: creator_id); //debug tool
   }
   createCategory({@required String creator_id, @required String cardName}) async {
     Database db = await newDB;
@@ -209,7 +207,7 @@ class localDB {
 }//TODO: дополнить функцию необходимыми параметрами
   moveCardToCategory({@required String card_id, @required String category_id, @required String user})async{
     Database db = await newDB;
-    await db.rawUpdate("UPDATE T_CARD SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE PK_ID = ? AND IL_DEL = 0", [category_id, user, timeStamp(), card_id]);
+    await db.rawUpdate("UPDATE T_ACCESS SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE FK_CARD = ? AND IL_DEL = 0", [category_id, user, timeStamp(), card_id]);
     return;
   }
 

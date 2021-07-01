@@ -281,7 +281,7 @@ class _regScreenPage2 extends State<regScreenPage2> {
                         return val.length>=8?null:"Длина пароля должна составлять не менее 8 символов";
                       },
                       onChanged: (val){
-                        passw0rd = val.toLowerCase();
+                        passw0rd = val;
                         if (_formKey.currentState.validate())
                           setState(() {
                             canRegister = true;

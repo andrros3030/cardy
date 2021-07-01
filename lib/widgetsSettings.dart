@@ -109,16 +109,17 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
     onChanged: onChanged,
     obscureText: obscure,
     decoration: InputDecoration(
-        suffixIcon: GestureDetector(
-          child: Container(
-            height: 20,
-            width: 20,
-            child: Icon(
-              obscure?FontAwesome5.eye:FontAwesome5.eye_slash, size:16
-            ),
+      errorMaxLines: 3,
+      suffixIcon: GestureDetector(
+        child: Container(
+          height: 20,
+          width: 20,
+          child: Icon(
+            obscure?FontAwesome5.eye:FontAwesome5.eye_slash, size:16
           ),
+        ),
         onTap: onSuffixTap,
-      )
+      ),
     ),
   );
 }
