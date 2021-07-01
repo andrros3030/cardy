@@ -3,6 +3,7 @@ import 'package:card_app_bsk/backend/hiveStorage.dart';
 import 'package:card_app_bsk/main.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class onBoarding extends StatefulWidget {
   @override
@@ -52,6 +53,8 @@ class _regScreen extends State<regScreen> {
   bool _loading = false;
   bool _showingBad = false;
   String _email = '';
+  FocusNode _focus = FocusNode();
+
   String isEmail(String s){
     if (RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(s))
       return null;
@@ -104,6 +107,7 @@ class _regScreen extends State<regScreen> {
                     SizedBox(height: 10,),
                     TextFormField(
                       maxLines: 1,
+                      focusNode: _focus,
                       keyboardType: TextInputType.emailAddress,
                       onFieldSubmitted: (val){
                         if (validEmail && !_loading){
@@ -117,13 +121,14 @@ class _regScreen extends State<regScreen> {
                             duration: Duration(seconds: 1),
                             child: GestureDetector(
                               child: Container(width: 20, height: 20, child: _loading?CircularProgressIndicator():Icon(_showingBad?Icons.block:canContinue?Icons.done:Icons.adjust, color: _showingBad?Colors.red:canContinue?Colors.green:null,)),
-                              onTap: (){
-                                if (validEmail && !_loading){
+                              onTap: ()async{
+                                _focus.unfocus();
+                                if (validEmail && !_loading && !canContinue){
                                   canContinue = false;
                                   availableEmail(_email);
                                 }
                               },
-                            ),)),
+                            ),),),
                       validator: (val){
                         return isEmail(val);
                       },
@@ -219,48 +224,7 @@ class _regScreenPage2 extends State<regScreenPage2> {
         ),
       );
     return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: Size(_width, appBarHeight),
-          child: Container(
-            color: primaryDark,
-            child: SafeArea(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Navigator.canPop(context)?GestureDetector(
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          child: Icon(
-                            Icons.arrow_back_ios_rounded,
-                            color: Colors.white,
-                          ),
-                        ),
-                        onTap: (){
-                          debugPrint(_email);
-                          Navigator.of(context).pop();
-                        },
-                      ):Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.transparent,
-                      ),
-                      GestureDetector(
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          color: Colors.transparent,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-            ),
-          ),
-        ),
+      appBar: appBarUsual(context, _width),
       body: Stack(
         children: [
           Form(
