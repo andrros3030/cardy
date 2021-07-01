@@ -207,7 +207,7 @@ class localDB {
 }//TODO: дополнить функцию необходимыми параметрами
   moveCardToCategory({@required String card_id, @required String category_id, @required String user})async{
     Database db = await newDB;
-    await db.rawUpdate("UPDATE T_ACCESS SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE FK_CARD = ? AND IL_DEL = 0", [category_id, user, timeStamp(), card_id]);
+    await db.rawUpdate("UPDATE T_ACCESS SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE FK_CARD = ? AND FK_ACCOUNT = ? AND IL_DEL = 0", [category_id, user, timeStamp(), card_id, user]);
     return;
   }
 

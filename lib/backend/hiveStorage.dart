@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 Box appData;
 
 void firstRun(){
+  appData.put(_keyBadEmails, []);
   needAutoRegistration = true;
 }
 String _keyBadEmails = "badEmail";
@@ -34,12 +35,7 @@ Future initHive() async {
 
 void saveBadEmail(String email){
   List data;
-  if (List.from(appData.keys).contains(_keyBadEmails)){
-    data = List.from(appData.get(_keyBadEmails));
-  }
-  else{
-    data  = [];
-  }
+  data = List.from(appData.get(_keyBadEmails));
   data.add(email);
   appData.put(_keyBadEmails, data);
 }

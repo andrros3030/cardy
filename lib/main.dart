@@ -174,7 +174,6 @@ void start() async{
       appRuner(AuthorizationScreen(log: accountEmail, message: "Данные для входа в аккаунт устарели, пожалуйста введите пароль заново",));
     }
   }
-
 }
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
