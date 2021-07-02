@@ -1,3 +1,4 @@
+import 'package:card_app_bsk/cardPage.dart';
 import 'package:card_app_bsk/userPage.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +64,6 @@ class _mainPage extends State<mainPage> {
           );
         },
         onAccept: (String data) async{
-          debugPrint('data: '+ data);
           await localDB.db.moveCardToCategory(card_id: data, category_id: _data['id'], user: accountGuid);
           setState(() {_loading = true;});
         },
@@ -71,64 +71,67 @@ class _mainPage extends State<mainPage> {
   }
   Widget cardTile(Map _data){
     String _id = _data['id'];
-    Widget _item = GestureDetector(
-      child: Container(
-        height: 160,
-        width: _width*0.9,
-        padding: EdgeInsets.symmetric(vertical: 12),
+    Widget _item = Hero(
+      tag: _data['id'],
+      child: GestureDetector(
         child: Container(
-          decoration: BoxDecoration(
-              color:Colors.white,
-              boxShadow: [BoxShadow(
-                color: Color.fromRGBO(228, 228, 231, 0.8),
-                blurRadius: 10.0,
-                spreadRadius: 2.0,
-                //offset: Offset(1,0)
-              )
-              ],
-              borderRadius: BorderRadius.circular(8)
-          ),
-          child: Card(
-            elevation: 0.0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-              child: Stack(
-                  children: [
-                    Center(
-                      child: Text("Card: " + _id, style: green24,),
-                    ),
-                    Positioned(
-                        right: 0.0,
-                        top: 0.0,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(2, (index) => Column(
-                                    children: List.generate(3, (index) => Container(
-                                      width: 4.0,
-                                      height: 4.0,
-                                      margin: EdgeInsets.only(bottom: 2, right: 2),
-                                      decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Color.fromRGBO(46, 48, 52, 0.2)
-                                      ),
-                                    ))
-                                ))
-                            ),
-                          ],
-                        )
-                    )
-                  ]
+          height: 160,
+          width: _width*0.9,
+          padding: EdgeInsets.symmetric(vertical: 12),
+          child: Container(
+            decoration: BoxDecoration(
+                color:Colors.white,
+                boxShadow: [BoxShadow(
+                  color: Color.fromRGBO(228, 228, 231, 0.8),
+                  blurRadius: 10.0,
+                  spreadRadius: 2.0,
+                  //offset: Offset(1,0)
+                )
+                ],
+                borderRadius: BorderRadius.circular(8)
+            ),
+            child: Card(
+              elevation: 0.0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                child: Stack(
+                    children: [
+                      Center(
+                        child: Text("Card: " + _id, style: green24,),
+                      ),
+                      Positioned(
+                          right: 0.0,
+                          top: 0.0,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(2, (index) => Column(
+                                      children: List.generate(3, (index) => Container(
+                                        width: 4.0,
+                                        height: 4.0,
+                                        margin: EdgeInsets.only(bottom: 2, right: 2),
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Color.fromRGBO(46, 48, 52, 0.2)
+                                        ),
+                                      ))
+                                  ))
+                              ),
+                            ],
+                          )
+                      )
+                    ]
+                ),
               ),
             ),
           ),
         ),
+        onTap: ()async{
+          bool res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>cardPage(_data)));
+        },
       ),
-      onTap: (){
-
-      },
     );
     if (_currentState.length < 1)
       return Draggable<String>(
@@ -145,7 +148,14 @@ class _mainPage extends State<mainPage> {
         child: _item,
       );
     else
-      return _item;
+      return Dismissible(
+        key: ValueKey(_data['id']),
+        child: _item,
+        onDismissed: (DismissDirection direction)async{
+          await localDB.db.moveCardToCategory(card_id: _data['id'], category_id: null, user: accountGuid);
+          setState(() {_loading = true;});
+        },
+      );
   }
   Widget categoriesColumn(){
     List _cats = List.from(categories);
