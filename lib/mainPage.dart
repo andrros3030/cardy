@@ -148,6 +148,11 @@ class _mainPage extends State<mainPage> {
         ),
         onTap: ()async{
           bool res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>cardPage(_data)));
+          if (res == null) res = false;
+          if (res)
+            setState(() {
+              _loading = true;
+            });
         },
       ),
     );

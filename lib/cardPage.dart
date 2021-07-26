@@ -1,5 +1,7 @@
+import 'package:card_app_bsk/backend/database.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class cardPage extends StatefulWidget {
   Map cardData;
@@ -99,7 +101,8 @@ class _cardPage extends State<cardPage> {
               );},);
             if (res == null) res = false;
             if (res){
-              debugPrint('Card should be removed');
+              await localDB.db.removeCard(cardData['id'], removeCard: cardData['access'] == mainAccessInt);
+              Navigator.pop(context, true);
             }
           },
           color: Colors.red,

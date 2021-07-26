@@ -223,9 +223,16 @@ class localDB {
         await db.rawUpdate('UPDATE T_CATEGORY SET PI_ORDER = ? WHERE PK_ID = ? AND IL_DEL = 0', [el['order'], el['id']]);
       }
   }
+
   //Метод удаления карты
-  removeCard(String cardID)async{
-    //TODO: удаляем либо карту, либо запись из T_ACCES
+  removeCard(String cardID, {bool removeCard = false})async{
+    Database db = await newDB;
+    try{
+      await db.rawUpdate('UPDATE T_ACCESS SET IL_DEL = 1, IT_CHANGE = ? WHERE FK_CARD = ? AND FK_ACCOUNT = ?', [timeStamp(), cardID, accountGuid]);
+      if (removeCard)
+        await db.rawUpdate('UPDATE T_CARD SET IL_DEL = 1, IT_CHANGE = ? WHERE PK_ID = ?', [timeStamp(), cardID]);
+    }
+    catch(e){}
   }
   
   //Проставляем логическое удаление категории и обнуляем зависимости в T_ACCESS
