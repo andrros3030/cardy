@@ -42,7 +42,7 @@ class _mainPage extends State<mainPage> {
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Stack(
             children: [
-              Center(child: Text(_data['name']),),
+              Center(child: Text(_data['name'], style: green24,),),
               Align(
                 alignment: Alignment.topRight,
                 child: counter(_data['id']),
@@ -223,8 +223,9 @@ class _mainPage extends State<mainPage> {
             width: double.infinity,
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Card(
+              color: primaryDark,
               elevation: 8.0,
-              child: Center(child: Text("Добавить категорию", style: green24,)),
+              child: Center(child: Text("Добавить категорию", style: white24,)),
             ),
           ),
         ),

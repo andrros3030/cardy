@@ -52,6 +52,7 @@ ThemeData mainTheme = ThemeData(
 
 //набор текстовых стилей, все основные стили прописаны здесь. Либо использовать напрямую, либо копировать с изменением параметров
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
+TextStyle white24 = TextStyle(fontSize: 24, color: Colors.white);
 TextStyle green24 = TextStyle(fontSize: 24, color: backgroundColor);
 TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
 TextStyle red16 = TextStyle(color: Colors.red, fontSize: 16);
