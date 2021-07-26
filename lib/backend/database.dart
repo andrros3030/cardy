@@ -227,4 +227,14 @@ class localDB {
   removeCard(String cardID)async{
     //TODO: удаляем либо карту, либо запись из T_ACCES
   }
+  
+  //Проставляем логическое удаление категории и обнуляем зависимости в T_ACCESS
+  removeCategory(String catID)async{
+    Database db = await newDB;
+    try{
+      await db.rawUpdate('UPDATE T_CATEGORY SET IL_DEL = 1, IT_CHANGE = ? WHERE PK_ID = ?', [timeStamp(), catID]);
+      await db.rawUpdate('UPDATE T_ACCESS SET FK_CATEGORY = NULL, IT_CHANGE = ? WHERE FK_CATEGORY = ?', [timeStamp(), catID]);
+    }
+    catch(e){}
+  }
 }

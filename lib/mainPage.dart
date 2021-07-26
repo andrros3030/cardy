@@ -34,39 +34,58 @@ class _mainPage extends State<mainPage> {
     );
   }
   Widget categoryTile(Map _data){
-    return DragTarget<String>(
-        builder: (
-            BuildContext context,
-            List<dynamic> accepted,
-            List<dynamic> rejected,
-            ) {
-          return GestureDetector(
-            child: Card(
-              elevation: 8.0,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Stack(
-                  children: [
-                    Center(child: Text(_data['name']),),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: counter(_data['id']),
-                    ),
-                  ],
+    return GestureDetector(
+      child: Card(
+        elevation: 8.0,
+        child: Container(
+          height: 160,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Stack(
+            children: [
+              Center(child: Text(_data['name']),),
+              Align(
+                alignment: Alignment.topRight,
+                child: counter(_data['id']),
+              ),
+              Align(
+                alignment: Alignment.topLeft,
+                child: GestureDetector(
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                    //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                    padding: EdgeInsets.all(4),
+                    width: 40,
+                    height: 40,
+                  ),
+                  onTap: ()async {
+                    bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                      title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                      children: [
+                        TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                        TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                      ],
+                    );});
+                    if (res == null) res = false;
+                    if (res){
+                      await localDB.db.removeCategory(_data['id']);
+                      setState(() {
+                        _loading = true;
+                      });
+                    }
+
+                  },
                 ),
               ),
-            ),
-            onTap: (){
-              setState(() {
-                _currentState = _data['id'];
-              });
-            },
-          );
-        },
-        onAccept: (String data) async{
-          await localDB.db.moveCardToCategory(card_id: data, category_id: _data['id'], user: accountGuid);
-          setState(() {_loading = true;});
-        },
+            ],
+          ),
+        ),
+      ),
+      onTap: (){
+        setState(() {
+          _currentState = _data['id'];
+        });
+      },
     );
   }
   Widget cardTile(Map _data){
@@ -222,20 +241,24 @@ class _mainPage extends State<mainPage> {
         child: cardTile(_cards[index]),
       );
     });
-    return ReorderableColumn(
-      onReorder: (int oldI, int newI) async{
-        var tile = _cards.removeAt(oldI);
-        await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (index) {
-          if (index<newI)
-            return {'order': index, 'id': _cards[index]['id']};
-          else if (index==newI)
-            return {'order': index, 'id': tile['id']};
-          else
-            return {'order': index, 'id': _cards[index-1]['id']};
-        }));
-        setState((){_loading = true;});
-      },
-      children: tiles,
+    return Container(
+      child: ReorderableColumn(
+        scrollController: ScrollController(),
+        mainAxisSize: MainAxisSize.min,
+        onReorder: (int oldI, int newI) async{
+          var tile = _cards.removeAt(oldI);
+          await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (index) {
+            if (index<newI)
+              return {'order': index, 'id': _cards[index]['id']};
+            else if (index==newI)
+              return {'order': index, 'id': tile['id']};
+            else
+              return {'order': index, 'id': _cards[index-1]['id']};
+          }));
+          setState((){_loading = true;});
+        },
+        children: tiles,
+      ),
     );
   }
   Widget searcher(String _state){
@@ -389,11 +412,7 @@ class _mainPage extends State<mainPage> {
             width: _width,
             height: _height - appBarHeight,
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            child: ListView(
-              children: [
-                cardsColumn(_currentState),
-              ],
-            ),
+            child: cardsColumn(_currentState),
           ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
