@@ -70,6 +70,52 @@ class _cardPage extends State<cardPage> {
     );
   }
 
+  Widget actions(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        cardData['name'].toString().length > 0?Container(width: _width, alignment: Alignment.center, child: Text(cardData['name'], style: green24,), padding: EdgeInsets.only(bottom: 12),):SizedBox(),
+        cardData['access'] == mainAccessInt?SizedBox(height: 12,):Container(padding: EdgeInsets.only(top:12),child: Text(cardData['access'] > mainAccessInt?'Владелец карты разрешил Вам делиться этой картой':'Владелец карты запретил Вам делиться этой картой')),
+        defButton(
+          onPressed: cardData['access'] >= mainAccessInt? (){}:null, //TODO: предложить варианты, как поделиться картой
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.share, color: Colors.white,),
+              SizedBox(width: 6,),
+              Text('Поделиться', style: white20,),
+            ],
+          ),
+        ),
+        defButton(
+          onPressed: ()async{
+            bool res = await showDialog(context: context, builder: (context){
+              return SimpleDialog(
+                title: Text(cardData['access'] == mainAccessInt?'Карта будет удалена из Вашего кошелька и из кошельков тех людей, которым Вы предоставили доступ к этой карте!':'Вы потеряете доступ к этой карте и не сможете восстановить его самостоятельно'),
+                children: [
+                  TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить', style: red16,),),
+                  TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                ],
+              );},);
+            if (res == null) res = false;
+            if (res){
+              debugPrint('Card should be removed');
+            }
+          },
+          color: Colors.red,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.delete, color: Colors.white,),
+              SizedBox(width: 6,),
+              Text('Удалить карту', style: white20,),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context){
     _width = MediaQuery.of(context).size.width;
@@ -83,7 +129,9 @@ class _cardPage extends State<cardPage> {
             Hero(
               tag: cardData['id'],
               child: cardBig(),
-            )
+            ),
+            Divider(height: 4, thickness: 2,),
+            actions(),
           ],
         ),
       ),

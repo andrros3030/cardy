@@ -77,7 +77,6 @@ class _mainPage extends State<mainPage> {
         child: Container(
           height: 160,
           width: _width*0.9,
-          padding: EdgeInsets.symmetric(vertical: 12),
           child: Container(
             decoration: BoxDecoration(
                 color:Colors.white,
@@ -134,7 +133,8 @@ class _mainPage extends State<mainPage> {
       ),
     );
     if (_currentState.length < 1)
-      return Draggable<String>(
+      return _item;
+    /*Draggable<String>(
         feedback: _item,
         data: _id,
         childWhenDragging: Container(
@@ -146,14 +146,14 @@ class _mainPage extends State<mainPage> {
           child: Text('Перетените карту в категорию и отпустите. Чтобы сменить очередность, удерживайте карту чуть-чуть дольше)'),
         ),
         child: _item,
-      );
+      );*/
     else
       return Dismissible(
         key: ValueKey(_data['id']),
         child: _item,
         onDismissed: (DismissDirection direction)async{
           await localDB.db.moveCardToCategory(card_id: _data['id'], category_id: null, user: accountGuid);
-          setState(() {_loading = true;});
+          setState(() {_loading = true;}); //TODO: проработать систему обновления данных, которая не будет затрагивать визуализацию
         },
       );
   }
@@ -174,7 +174,6 @@ class _mainPage extends State<mainPage> {
       children: [
         ReorderableColumn(
           onReorder: (int oldI, int newI) async{
-            int realNew = newI<oldI?newI-1:newI;
             var tile = _cats.removeAt(oldI);
             await localDB.db.reorderItems(categoriesToUpdate: List.generate(_cats.length+1, (index) {
               if (index<newI)
@@ -225,7 +224,6 @@ class _mainPage extends State<mainPage> {
     });
     return ReorderableColumn(
       onReorder: (int oldI, int newI) async{
-        int realNew = newI<oldI?newI-1:newI;
         var tile = _cards.removeAt(oldI);
         await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (index) {
           if (index<newI)

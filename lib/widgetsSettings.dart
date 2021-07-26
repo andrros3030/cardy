@@ -11,6 +11,7 @@ import 'package:fluttericon/font_awesome5_icons.dart';
 Color primaryDark = Colors.green; //из фигмы
 Color primaryLight = Colors.lightGreen; //из фигмы
 Color primaryBlack = Color(0xFF2E3034); //из фигмы
+Color disabledGrey = Colors.grey;
 Color successColor = Color(0xFF53D769); //из фигмы
 Color errorColor = Color(0xFFFF4E4E); //из фигмы
 
@@ -53,6 +54,8 @@ ThemeData mainTheme = ThemeData(
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
 TextStyle green24 = TextStyle(fontSize: 24, color: backgroundColor);
 TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
+TextStyle red16 = TextStyle(color: Colors.red, fontSize: 16);
+TextStyle grey16 = TextStyle(color: Colors.grey, fontSize: 16);
 //TODO
 
 BuildContext contextForLogic;
@@ -170,7 +173,20 @@ Widget appBarUsual(BuildContext context, double _width, {Widget child, Function 
   );
 }
 
+Widget defButton({@required Function onPressed, Widget child, Color color, shape}){
+  return MaterialButton(
+    minWidth: 240,
+    onPressed: onPressed,
+    child: child,
+    color: color==null?primaryDark:color,
+    shape: shape==null?RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)):shape,
+    elevation: 8.0,
+    disabledElevation: 8.0,
+    disabledColor: disabledGrey,
+  );
+}
 
+int mainAccessInt = 100;
 String supportEmail = 'support@cardy.com'; //TODO: fill our_adress
 //открывает ссылку на отправку
 openSupportEmail(BuildContext context, {bool noLocalization = false})async{

@@ -223,4 +223,8 @@ class localDB {
         await db.rawUpdate('UPDATE T_CATEGORY SET PI_ORDER = ? WHERE PK_ID = ? AND IL_DEL = 0', [el['order'], el['id']]);
       }
   }
+  //Метод удаления карты
+  removeCard(String cardID)async{
+    //TODO: удаляем либо карту, либо запись из T_ACCES
+  }
 }

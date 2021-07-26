@@ -65,3 +65,12 @@ void closeAccount(){
 void setOnboardingSkipped(){
   appData.put("onBoardingSkipped", true);
 }
+
+// Сохраняем очередное действие пользователя, которое не было синхронизировано с глобальной базой.
+void saveUnSyncronedAction(String action){
+  //TODO: реализовать
+}
+// Отправляем все действия пользователя, которые не были синхронизированы и очищаем стек, в котором это хранилось
+void syncData(){
+  //TODO: реализовать
+}
