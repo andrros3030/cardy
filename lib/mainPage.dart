@@ -17,11 +17,15 @@ class mainPage extends StatefulWidget {
 
 
 class _mainPage extends State<mainPage> {
+  double cardHeight = 160;
+  double cardExtended = 200;
   List categories = [];
   Map cards = {};
   bool _loading = true;
   double _width;
   String _currentState = '';
+  String _activeZone = ''; // тут храним ID категории или промежуточного пространства, куда будет перетягиваться карта, для того, чтобы подсветить это место
+  String _activeCard = ''; // тут храним ID карты, которую мы в данный момент перетягиваем
   ScrollController _scrollController = new ScrollController();
 
   Widget counter(String key){
@@ -35,58 +39,131 @@ class _mainPage extends State<mainPage> {
     );
   }
   Widget categoryTile(Map _data){
-    return GestureDetector(
-      child: Card(
-        elevation: 8.0,
-        child: Container(
-          height: 160,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Stack(
-            children: [
-              Center(child: Text(_data['name'], style: green24,),),
-              Align(
-                alignment: Alignment.topRight,
-                child: counter(_data['id']),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Icon(Icons.delete, color: Colors.red, size: 30,),
-                    //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.all(4),
-                    width: 40,
-                    height: 40,
+    return DragTarget<String>(
+      builder: (BuildContext context, List<dynamic> accepted, List<dynamic> rejected,){
+        bool _primary = _activeZone == _data['id'];
+        return _primary?GestureDetector(
+          child: Card(
+            elevation: 16.0,
+            color: getColorForTile(10),
+            child: Container(
+              height: cardExtended,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Stack(
+                children: [
+                  Center(child: Text(_data['name'], style: green24,),),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: counter(_data['id']),
                   ),
-                  onTap: ()async {
-                    bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                      title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
-                      children: [
-                        TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
-                        TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
-                      ],
-                    );});
-                    if (res == null) res = false;
-                    if (res){
-                      await localDB.db.removeCategory(_data['id']);
-                      setState(() {
-                        _loading = true;
-                      });
-                    }
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                        //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                        padding: EdgeInsets.all(4),
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: ()async {
+                        bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          children: [
+                            TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                            TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                          ],
+                        );});
+                        if (res == null) res = false;
+                        if (res){
+                          await localDB.db.removeCategory(_data['id']);
+                          setState(() {
+                            _loading = true;
+                          });
+                        }
 
-                  },
-                ),
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-      onTap: (){
+          onTap: (){
+            setState(() {
+              _currentState = _data['id'];
+            });
+          },):GestureDetector(
+          child: Card(
+            elevation: 4.0,
+            child: Container(
+              height: cardExtended,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Stack(
+                children: [
+                  Center(child: Text(_data['name'], style: green24,),),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: counter(_data['id']),
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                        //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                        padding: EdgeInsets.all(4),
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: ()async {
+                        bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          children: [
+                            TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                            TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                          ],
+                        );});
+                        if (res == null) res = false;
+                        if (res){
+                          await localDB.db.removeCategory(_data['id']);
+                          setState(() {
+                            _loading = true;
+                          });
+                        }
+
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          onTap: (){
+            setState(() {
+              _currentState = _data['id'];
+            });
+          },);
+      },
+      onAccept: (String data) async{
+        debugPrint('sent to category');
+        await localDB.db.moveCardToCategory(card_id: data, category_id: _data['id'], user: accountGuid);
+        setState(() {_loading = true;_activeZone = '';});
+      },
+      onMove: (data){
+        if (_activeZone!=_data['id'])
+          setState(() {
+            _activeZone = _data['id'];
+          });
+      },
+      onLeave: (data){
         setState(() {
-          _currentState = _data['id'];
+          _activeZone = '';
         });
       },
+
     );
   }
   Widget cardTile(Map _data){
@@ -95,7 +172,7 @@ class _mainPage extends State<mainPage> {
       tag: _data['id'],
       child: GestureDetector(
         child: Container(
-          height: 160,
+          height: cardHeight,
           width: _width*0.9,
           child: Container(
             decoration: BoxDecoration(
@@ -157,35 +234,44 @@ class _mainPage extends State<mainPage> {
         },
       ),
     );
-    if (_currentState.length < 1)
-      return Listener(
-        child: _item,
-        onPointerMove: (PointerMoveEvent event) {
-          if (event.position.dy > MediaQuery.of(context).size.height) {
-            _scrollController.animateTo(_scrollController.offset + 160, duration: Duration(milliseconds: 200), curve: Curves.ease);
-          }
-          else if (event.position.dy < 40){
-            _scrollController.animateTo(_scrollController.offset - 160, duration: Duration(milliseconds: 200), curve: Curves.ease);
-          }
-        },
-      );
-    /*Draggable<String>(
+    Widget _full = Listener(
+      child: LongPressDraggable<String>(
         feedback: _item,
+        onDragStarted: (){
+          setState(() {
+            _activeCard = _data['id'];
+          });
+        },
+        onDraggableCanceled: (v, o){
+          setState(() {
+            _activeCard = '';
+          });
+        },
+        onDragCompleted: (){
+          setState(() {
+            _activeCard = '';
+          });
+        },
         data: _id,
-        childWhenDragging: Container(
-          decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(30)),
-          height: 160,
-          width: _width*0.9,
-          alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Text('Перетените карту в категорию и отпустите. Чтобы сменить очередность, удерживайте карту чуть-чуть дольше)'),
-        ),
+        childWhenDragging: Container(color: Colors.red, height: 120, width: _width,),
         child: _item,
-      );*/
+      ),
+
+      onPointerMove: (PointerMoveEvent event) {
+        if (event.position.dy > MediaQuery.of(context).size.height) {
+          _scrollController.animateTo(_scrollController.offset + cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
+        }
+        else if (event.position.dy < 40){
+          _scrollController.animateTo(_scrollController.offset - cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
+        }
+      },
+    );
+    if (_currentState.length < 1)
+      return _full;
     else
       return Dismissible(
         key: ValueKey(_data['id']),
-        child: _item,
+        child: _full,
         onDismissed: (DismissDirection direction)async{
           await localDB.db.moveCardToCategory(card_id: _data['id'], category_id: null, user: accountGuid);
           setState(() {_loading = true;}); //TODO: проработать систему обновления данных, которая не будет затрагивать визуализацию
@@ -204,43 +290,46 @@ class _mainPage extends State<mainPage> {
         child: categoryTile(_cats[index]),
       );
     });
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReorderableColumn(
-          onReorder: (int oldI, int newI) async{
-            var tile = _cats.removeAt(oldI);
-            await localDB.db.reorderItems(categoriesToUpdate: List.generate(_cats.length+1, (index) {
-              if (index<newI)
-                return {'order': index, 'id': _cats[index]['id']};
-              else if (index==newI)
-                return {'order': index, 'id': tile['id']};
-              else
-                return {'order': index, 'id': _cats[index-1]['id']};
-            }));
-            setState((){_loading = true;});
-          },
-          children: tiles,
-        ),
-        GestureDetector(
-          onTap: ()async{
-            await localDB.db.createCategory(cardName: 'super name', creator_id: accountGuid);
-            setState(() {
-              _loading = true;
-            });
-          },
-          child: Container(
-            height: 160,
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Card(
-              color: primaryDark,
-              elevation: 8.0,
-              child: Center(child: Text("Добавить категорию", style: white24,)),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ReorderableColumn(
+            onReorder: (int oldI, int newI) async{
+              var tile = _cats.removeAt(oldI);
+              await localDB.db.reorderItems(categoriesToUpdate: List.generate(_cats.length+1, (index) {
+                if (index<newI)
+                  return {'order': index, 'id': _cats[index]['id']};
+                else if (index==newI)
+                  return {'order': index, 'id': tile['id']};
+                else
+                  return {'order': index, 'id': _cats[index-1]['id']};
+              }));
+              setState((){_loading = true;});
+            },
+            children: tiles,
+          ),
+          GestureDetector(
+            onTap: ()async{
+              await localDB.db.createCategory(cardName: 'super name', creator_id: accountGuid);
+              setState(() {
+                _loading = true;
+              });
+            },
+            child: Container(
+              height: cardHeight,
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Card(
+                color: primaryDark,
+                elevation: 8.0,
+                child: Center(child: Text("Добавить категорию", style: white24,)),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
   Widget cardsColumn(String key){ //Category Key here
@@ -250,30 +339,64 @@ class _mainPage extends State<mainPage> {
     _cards.sort((a, b){
       return a['order']<b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
     });
-    List<Widget> tiles = List.generate(_cards.length, (index) {
-      String _id = _cards[index]['id'];
-      return ReorderableWidget(
-        key: ValueKey(_id),
-        reorderable: true,
-        child: cardTile(_cards[index]),
-      );
+    int _cur = _activeCard.length>0?(_cards.indexWhere((element) => element['id']==_activeCard)*2 + 1):-1;
+    List<Widget> tiles = List.generate(_cards.length*2 + 1, (index) {
+      if (index%2 == 1)
+        return AnimatedContainer(width: _width, height: _activeCard==_cards[index~/2]['id']?0:cardHeight,  duration: Duration(milliseconds: 800), child: _activeCard==_cards[index~/2]['id']?null:cardTile(_cards[index~/2]),);// это виджет с картой, его можно будет перетянуть
+      else{
+        if (index == _cur - 1 || index == _cur + 1)
+          return SizedBox();
+        String _id = index==0?'firstID':index==_cards.length*2?'LastID':(_cards[index~/2]['id']+_cards[index~/2 - 1]['id']);
+        bool _primary = _activeZone==_id;
+        return DragTarget<String>(
+          builder: (BuildContext context, List<dynamic> accepted, List<dynamic> rejected,){
+            return AnimatedContainer(
+              duration: Duration(milliseconds: 400),
+              height: _primary?cardExtended:15,
+              width: _width,
+              color: _primary?getColorForTile(10):Colors.transparent,
+            );},
+          onAccept: (String data) async{
+            _cards.removeWhere((element) => element['id']==data);
+            int newI = index~/2;
+            if (newI >= _cards.length)
+              newI-=1;
+            if (index == 4)
+              newI-=1;
+
+            await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (di) {
+              if (di<newI)
+                return {'order': di, 'id': _cards.removeAt(0)['id']};
+              else if (di==newI)
+                return {'order': di, 'id':data};
+              else
+                return {'order': di, 'id': _cards.removeAt(0)['id']};
+            }));
+            setState(() {
+              _loading = true;
+              _activeZone = '';
+            });
+          },
+          onMove: (data){
+            if (!_primary)
+              setState(() {
+                _activeZone =_id;
+              });
+          },
+          onLeave: (data)async{
+            Future.delayed(Duration(seconds: 1)).then((value){
+              if (_primary)
+                setState(() {
+                  _activeZone = '';
+                });
+            });
+          },
+        );
+      } // это виджет который является "площадью" между двумя картами или сверху и снизу от карт
     });
     return Container(
-      child: ReorderableColumn(
-        scrollController: ScrollController(),
-        mainAxisSize: MainAxisSize.min,
-        onReorder: (int oldI, int newI) async{
-          var tile = _cards.removeAt(oldI);
-          await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (index) {
-            if (index<newI)
-              return {'order': index, 'id': _cards[index]['id']};
-            else if (index==newI)
-              return {'order': index, 'id': tile['id']};
-            else
-              return {'order': index, 'id': _cards[index-1]['id']};
-          }));
-          setState((){_loading = true;});
-        },
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+      child: Column(
         children: tiles,
       ),
     );
@@ -346,7 +469,6 @@ class _mainPage extends State<mainPage> {
         body: _loading?Center(child: CircularProgressIndicator()):Container(
           width: _width,
           height: _height - appBarHeight,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
           child: ListView(
             controller: _scrollController,
             children: [
@@ -429,8 +551,12 @@ class _mainPage extends State<mainPage> {
           body: _loading?Center(child: CircularProgressIndicator()):Container(
             width: _width,
             height: _height - appBarHeight,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-            child: cardsColumn(_currentState),
+            child: ListView(
+              controller: _scrollController,
+              children: [
+                cardsColumn(_currentState),
+              ],
+            ),
           ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
