@@ -22,6 +22,7 @@ class _mainPage extends State<mainPage> {
   bool _loading = true;
   double _width;
   String _currentState = '';
+  ScrollController _scrollController = new ScrollController();
 
   Widget counter(String key){
     return Container(
@@ -157,7 +158,17 @@ class _mainPage extends State<mainPage> {
       ),
     );
     if (_currentState.length < 1)
-      return _item;
+      return Listener(
+        child: _item,
+        onPointerMove: (PointerMoveEvent event) {
+          if (event.position.dy > MediaQuery.of(context).size.height) {
+            _scrollController.animateTo(_scrollController.offset + 160, duration: Duration(milliseconds: 200), curve: Curves.ease);
+          }
+          else if (event.position.dy < 40){
+            _scrollController.animateTo(_scrollController.offset - 160, duration: Duration(milliseconds: 200), curve: Curves.ease);
+          }
+        },
+      );
     /*Draggable<String>(
         feedback: _item,
         data: _id,
@@ -337,6 +348,7 @@ class _mainPage extends State<mainPage> {
           height: _height - appBarHeight,
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
           child: ListView(
+            controller: _scrollController,
             children: [
               categoriesColumn(),
               SizedBox(height: 6,),
