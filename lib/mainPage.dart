@@ -474,8 +474,9 @@ class _mainPage extends State<mainPage> {
             children: [
               categoriesColumn(),
               SizedBox(height: 6,),
-              Divider(thickness: 4.0, height: 6.5,),
+              Divider(thickness: 2, height: 6,),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 12,),
                 width: _width,
                 alignment: Alignment.topLeft,
                 child: Row(
@@ -554,6 +555,19 @@ class _mainPage extends State<mainPage> {
             child: ListView(
               controller: _scrollController,
               children: [
+                Container(
+                  width: _width,
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  alignment: Alignment.topLeft,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('В категории "' + categories[categories.indexWhere((element) => element['id']==_currentState)]['name'] + '" карт:'),
+                      counter(_currentState),
+                    ],
+                  ),
+                ),
+                Divider(height: 6, thickness: 2,),
                 cardsColumn(_currentState),
               ],
             ),
