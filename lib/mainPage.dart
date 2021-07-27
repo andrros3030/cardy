@@ -28,6 +28,52 @@ class _mainPage extends State<mainPage> {
   String _activeCard = ''; // тут храним ID карты, которую мы в данный момент перетягиваем
   ScrollController _scrollController = new ScrollController();
 
+  Widget dragPlaceTarget({@required mas, @required index, @required id, Function onAccept}){
+    bool _movingAround = _activeCard.length>0;
+    bool _primary = _activeZone==id;
+    bool _lastPlacement = id=='LastID';
+    return DragTarget<String>(
+      builder: (BuildContext context, List<dynamic> accepted, List<dynamic> rejected,){
+        return AnimatedContainer(
+          duration: Duration(milliseconds: 400),
+          height: !_movingAround?5:_lastPlacement?cardExtended:_primary?cardExtended:40,
+          width: _width,
+          color: _primary?getColorForTile(10):Colors.transparent,
+        );},
+      onAccept:onAccept==null? (String data) async{
+        mas.removeWhere((element) => element['id']==data);
+        int newI = index~/2;
+        if (newI >= mas.length)
+          newI-=1;
+        if (index == 4)
+          newI-=1;
+
+        await localDB.db.reorderItems(cardsToUpdate: List.generate(mas.length+1, (di) {
+          if (di<newI)
+            return {'order': di, 'id': mas.removeAt(0)['id']};
+          else if (di==newI)
+            return {'order': di, 'id':data};
+          else
+            return {'order': di, 'id': mas.removeAt(0)['id']};
+        }));
+        setState(() {
+          _loading = true;
+          _activeZone = '';
+        });
+      }:onAccept,
+      onMove: (data){
+        if (!_primary)
+          setState(() {
+            _activeZone =id;
+          });
+      },
+      onLeave: (data)async{
+        setState(() {
+          _activeZone = '';
+        });
+      },
+    );
+  }
   Widget counter(String key){
     return Container(
       alignment: Alignment.center,
@@ -240,6 +286,7 @@ class _mainPage extends State<mainPage> {
         onDragStarted: (){
           setState(() {
             _activeCard = _data['id'];
+            _activeZone = 'activeCard';
           });
         },
         onDraggableCanceled: (v, o){
@@ -256,7 +303,6 @@ class _mainPage extends State<mainPage> {
         childWhenDragging: Container(color: Colors.red, height: 120, width: _width,),
         child: _item,
       ),
-
       onPointerMove: (PointerMoveEvent event) {
         if (event.position.dy > MediaQuery.of(context).size.height) {
           _scrollController.animateTo(_scrollController.offset + cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
@@ -341,57 +387,15 @@ class _mainPage extends State<mainPage> {
     });
     int _cur = _activeCard.length>0?(_cards.indexWhere((element) => element['id']==_activeCard)*2 + 1):-1;
     List<Widget> tiles = List.generate(_cards.length*2 + 1, (index) {
-      if (index%2 == 1)
-        return AnimatedContainer(width: _width, height: _activeCard==_cards[index~/2]['id']?0:cardHeight,  duration: Duration(milliseconds: 800), child: _activeCard==_cards[index~/2]['id']?null:cardTile(_cards[index~/2]),);// это виджет с картой, его можно будет перетянуть
+      if (index%2 == 1) {
+        String _id = _activeCard == _cards[index ~/ 2]['id']? 'activeCard':'';
+        return _activeCard == _cards[index ~/ 2]['id'] ? dragPlaceTarget(mas: _cards, index: index, id: _id, onAccept: (data){return 0;}): cardTile(_cards[index ~/ 2]); // это виджет с картой, его можно будет перетянуть
+      }
       else{
         if (index == _cur - 1 || index == _cur + 1)
           return SizedBox();
         String _id = index==0?'firstID':index==_cards.length*2?'LastID':(_cards[index~/2]['id']+_cards[index~/2 - 1]['id']);
-        bool _primary = _activeZone==_id;
-        return DragTarget<String>(
-          builder: (BuildContext context, List<dynamic> accepted, List<dynamic> rejected,){
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 400),
-              height: _primary?cardExtended:15,
-              width: _width,
-              color: _primary?getColorForTile(10):Colors.transparent,
-            );},
-          onAccept: (String data) async{
-            _cards.removeWhere((element) => element['id']==data);
-            int newI = index~/2;
-            if (newI >= _cards.length)
-              newI-=1;
-            if (index == 4)
-              newI-=1;
-
-            await localDB.db.reorderItems(cardsToUpdate: List.generate(_cards.length+1, (di) {
-              if (di<newI)
-                return {'order': di, 'id': _cards.removeAt(0)['id']};
-              else if (di==newI)
-                return {'order': di, 'id':data};
-              else
-                return {'order': di, 'id': _cards.removeAt(0)['id']};
-            }));
-            setState(() {
-              _loading = true;
-              _activeZone = '';
-            });
-          },
-          onMove: (data){
-            if (!_primary)
-              setState(() {
-                _activeZone =_id;
-              });
-          },
-          onLeave: (data)async{
-            Future.delayed(Duration(seconds: 1)).then((value){
-              if (_primary)
-                setState(() {
-                  _activeZone = '';
-                });
-            });
-          },
-        );
+        return dragPlaceTarget(mas: _cards,index: index, id: _id);
       } // это виджет который является "площадью" между двумя картами или сверху и снизу от карт
     });
     return Container(
