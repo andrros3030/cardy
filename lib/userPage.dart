@@ -146,7 +146,7 @@ class _userPage extends State<userPage> {
               Container(
                 width: _width,
                 padding: EdgeInsets.symmetric(vertical: 24, horizontal: 12),
-                child: Center(child: Text('Личные данные', style: green24,),),
+                child: Center(child: Text('Личные данные', style: def24,),),
               ),
               Container(child: Divider(thickness: 4.0,), padding: EdgeInsets.symmetric(horizontal: 12),),
               Container(
