@@ -251,7 +251,7 @@ class _newCard extends State<newCard> {
   }
 
 
-  @override
+  @override\
   Widget build(BuildContext context) {
     bool _unsorted = catID.length == 0;
     _width = MediaQuery
