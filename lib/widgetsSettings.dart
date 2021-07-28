@@ -33,6 +33,7 @@ List<Color> secondaryColors = <Color>[
   Color(0xFFFAE9B7),
   Color(0xFFA3E4E9),
   Color(0xFF93D9C4),
+  Color(0xFFFFFACC),
   Color.fromRGBO(43, 172, 252, 0.2)
 ];
 //получение цвета для заданного индекса внутри массива дополнительных цветов приложения
@@ -53,10 +54,13 @@ ThemeData mainTheme = ThemeData(
 //набор текстовых стилей, все основные стили прописаны здесь. Либо использовать напрямую, либо копировать с изменением параметров
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
 TextStyle white24 = TextStyle(fontSize: 24, color: Colors.white);
-TextStyle green24 = TextStyle(fontSize: 24, color: backgroundColor);
+TextStyle def24 = TextStyle(fontSize: 24, color: backgroundColor);
 TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
 TextStyle red16 = TextStyle(color: Colors.red, fontSize: 16);
 TextStyle grey16 = TextStyle(color: Colors.grey, fontSize: 16);
+TextStyle white16 = TextStyle(color: Colors.white, fontSize: 16);
+TextStyle black16 = TextStyle(color: Colors.black, fontSize: 16);
+TextStyle def16 = TextStyle(fontSize: 16, color: backgroundColor);
 //TODO
 
 BuildContext contextForLogic;

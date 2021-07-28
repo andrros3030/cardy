@@ -2,6 +2,7 @@ import 'package:card_app_bsk/backend/database.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 class cardPage extends StatefulWidget {
   Map cardData;
@@ -39,7 +40,7 @@ class _cardPage extends State<cardPage> {
             child: Stack(
                 children: [
                   Center(
-                    child: Text("Card: " + cardData['id'], style: green24,),
+                    child: Text("Card: " + cardData['id'], style: def24,),
                   ),
                   Positioned(
                       right: 0.0,
@@ -76,7 +77,7 @@ class _cardPage extends State<cardPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        cardData['name'].toString().length > 0?Container(width: _width, alignment: Alignment.center, child: Text(cardData['name'], style: green24,), padding: EdgeInsets.only(bottom: 12),):SizedBox(),
+        cardData['name'].toString().length > 0?Container(width: _width, alignment: Alignment.center, child: Text(cardData['name'], style: def24,), padding: EdgeInsets.only(bottom: 12),):SizedBox(),
         cardData['access'] == mainAccessInt?SizedBox(height: 12,):Container(padding: EdgeInsets.only(top:12),child: Text(cardData['access'] > mainAccessInt?'Владелец карты разрешил Вам делиться этой картой':'Владелец карты запретил Вам делиться этой картой')),
         defButton(
           onPressed: cardData['access'] >= mainAccessInt? (){}:null, //TODO: предложить варианты, как поделиться картой
@@ -135,6 +136,161 @@ class _cardPage extends State<cardPage> {
             ),
             Divider(height: 4, thickness: 2,),
             actions(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class newCard extends StatefulWidget{
+  String catID;
+  String catName;
+  newCard(this.catID, this.catName);
+  @override
+  _newCard createState() => _newCard(catID, catName);
+}
+
+class _newCard extends State<newCard> {
+  String catID;
+  String catName;
+
+  _newCard(this.catID, this.catName);
+
+  double _width;
+  int images = 0;
+  Map<String, List> _imageData = {
+    'front': [],
+    'back': []
+  };
+
+  Widget pictureTaker() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (_imageData['front'].length == 0)
+            _imageData['front'] = ['newImage'];
+          else
+            _imageData['back'] = ['newImage'];
+          images += 1;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(color: primaryDark, width: 3)
+        ),
+        padding: EdgeInsets.all(12),
+        child: Icon(Icons.camera_alt_outlined, color: primaryDark, size: 36,),
+      ),
+    );
+  }
+
+  Widget pictureBuilder(int index) {
+    return Container(
+      width: 64 * 2.0,
+      height: 48 * 2.0,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: primaryDark, width: 3),
+              color: primaryLight,
+            ),
+            padding: EdgeInsets.all(12),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Text(index == 0 ? 'Лицевая' : 'Оборотная', style: white16,),
+          ),
+          Align(),
+          Align(
+            alignment: Alignment.topLeft,
+            child: GestureDetector(
+              child: Container(
+                alignment: Alignment.center,
+                child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                padding: EdgeInsets.all(4),
+                width: 40,
+                height: 40,
+              ),
+              onTap: () async {
+                setState(() {
+                  _imageData[index == 0 ? 'front' : 'back'] = [];
+                  images -= 1;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget imageRow() {
+    if (images == 0)
+      return Container(
+        width: _width,
+        alignment: Alignment.topCenter,
+        child: pictureTaker(),
+      );
+    if (images == 1)
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _imageData['front'].length > 0 ? pictureBuilder(0) : pictureTaker(),
+          _imageData['front'].length > 0 ? pictureTaker() : pictureBuilder(1),
+        ],
+      );
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          pictureBuilder(0),
+          pictureBuilder(1),
+        ]
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    bool _unsorted = catID.length == 0;
+    _width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    return Scaffold(
+      appBar: appBarUsual(context, _width,
+          child: Text('Добавьте новую карту', style: white20,)),
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Column(
+          children: [
+            Container(
+              alignment: Alignment.center,
+              child: Text(_unsorted
+                  ? 'Карта появится в списке неотсортированных'
+                  : ('Карта будет сразу добавлена в категорию ' + catName),
+                style: black16, textAlign: TextAlign.center,),
+              decoration: BoxDecoration(
+                color: Color(0xFFFFFACC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            ),
+            SizedBox(height: 6,),
+            Divider(height: 6, thickness: 2,),
+            SizedBox(height: 6),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                  "Добавьте изображение карты, если на ней есть штрихкод"),
+            ),
+            AnimatedContainer(
+              width: _width,
+              duration: Duration(milliseconds: 200),
+              padding: EdgeInsets.symmetric(vertical: 6),
+              child: imageRow(),
+            ),
           ],
         ),
       ),
