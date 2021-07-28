@@ -6,7 +6,6 @@ import 'widgetsSettings.dart';
 import 'registration.dart';
 import 'pinPage.dart';
 import 'dart:async';
-import 'telegram_dart.dart' ;
 
 class AuthorizationScreen extends StatefulWidget {
   String log, message;
@@ -25,8 +24,21 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
   _AuthorizationScreen({this.log, this.message});
 
 
-  Future<void> tryAuth() async{
+<<<<<<< HEAD
+<<<<<<< HEAD
+  tryAuth() async{
     if (await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass))){
+=======
+=======
+>>>>>>> 2b4bd17629f861288fab3992bf18387c3e4387d2
+  Future<void> tryAuth() async{
+    String _tmp = await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass));
+    if (_tmp.length > 0){
+      accountGuid = _tmp;
+<<<<<<< HEAD
+>>>>>>> 2b4bd17629f861288fab3992bf18387c3e4387d2
+=======
+>>>>>>> 2b4bd17629f861288fab3992bf18387c3e4387d2
       saveCreditionalsIfNeeded(email: log, password: getHash(_pass));
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
@@ -39,6 +51,7 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
       //TODO: show "incorrect email+password" message
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +76,6 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             //Expanded(child: SizedBox(), flex: 1),
-            Expanded( child: Container(width: 200,height: 30,child: MaterialButton(onPressed: (){
-
-              telegram_start(context, false,-1, -1);
-            },child: Text("[Telegram]"),),),),
             Expanded(child: SizedBox(), flex: 1,),
             Center(child: Text(app_name, style: white20,)),
             Expanded(child: SizedBox(), flex: 1,),
@@ -150,12 +159,13 @@ void openMain() async{ //этот метод запускает главный �
 
 void start() async{
   authorized = false;
+
   accountGuid = '';
   accountEmail = '';
   pass = '';
+
   await localDB.db.InitDatabase();
   await initHive();
-  debugPrint('account: ' + accountEmail.toString() + ' ' + pass.toString() + ' authorized: ' + authorized.toString());
   if (needAutoRegistration)
     appRuner(onBoarding());
   else if (! authorized)
@@ -164,7 +174,9 @@ void start() async{
     else
       appRuner(AuthorizationScreen());
   else{
-    if (await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass)){
+    String _tmp = await localDB.db.accountExistsLocal(email: accountEmail, hashPass: pass);
+    if (_tmp.length > 0){
+      accountGuid = _tmp;
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
       }
@@ -176,7 +188,6 @@ void start() async{
       appRuner(AuthorizationScreen(log: accountEmail, message: "Данные для входа в аккаунт устарели, пожалуйста введите пароль заново",));
     }
   }
-
 }
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

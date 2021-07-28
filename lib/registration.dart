@@ -3,6 +3,7 @@ import 'package:card_app_bsk/backend/hiveStorage.dart';
 import 'package:card_app_bsk/main.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class onBoarding extends StatefulWidget {
   @override
@@ -52,19 +53,21 @@ class _regScreen extends State<regScreen> {
   bool _loading = false;
   bool _showingBad = false;
   String _email = '';
-  @override
+  FocusNode _focus = FocusNode();
+
   String isEmail(String s){
     if (RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(s))
       return null;
     return "введите настоящую почту";
   }
-  Future<bool> availableEmail(String s) async{
+  Future availableEmail(String s) async{
     setState(() {
       _loading = true;
     });
     debugPrint('process started');
-    bool res = await localDB.db.accountExistsLocal(email: _email);
-    if (!res){
+    String _res = await localDB.db.accountExistsLocal(email: _email);
+    bool res = true;
+    if (_res.length < 1){
       res = await localDB.db.emailIsTakenGlobal(email: _email);
     }
     setState(() {
@@ -74,6 +77,7 @@ class _regScreen extends State<regScreen> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     if (_showingBad){
       Future.delayed(Duration(seconds: 1)).then((value) {
@@ -85,47 +89,7 @@ class _regScreen extends State<regScreen> {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size(_width, appBarHeight),
-        child: Container(
-          color: primaryDark,
-          child: SafeArea(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Navigator.canPop(context)?GestureDetector(
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      child: Icon(
-                        Icons.arrow_back_ios_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    onTap: (){
-                      Navigator.of(context).pop();
-                    },
-                  ):Container(
-                    width: 40,
-                    height: 40,
-                    color: Colors.transparent,
-                  ),
-                  GestureDetector(
-                    child: Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.transparent,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ),
-        ),
-      ),
+      appBar: appBarUsual(context, _width),
       body: Stack(
         children: [
           Form(
@@ -143,6 +107,7 @@ class _regScreen extends State<regScreen> {
                     SizedBox(height: 10,),
                     TextFormField(
                       maxLines: 1,
+                      focusNode: _focus,
                       keyboardType: TextInputType.emailAddress,
                       onFieldSubmitted: (val){
                         if (validEmail && !_loading){
@@ -156,13 +121,14 @@ class _regScreen extends State<regScreen> {
                             duration: Duration(seconds: 1),
                             child: GestureDetector(
                               child: Container(width: 20, height: 20, child: _loading?CircularProgressIndicator():Icon(_showingBad?Icons.block:canContinue?Icons.done:Icons.adjust, color: _showingBad?Colors.red:canContinue?Colors.green:null,)),
-                              onTap: (){
-                                if (validEmail && !_loading){
+                              onTap: ()async{
+                                _focus.unfocus();
+                                if (validEmail && !_loading && !canContinue){
                                   canContinue = false;
                                   availableEmail(_email);
                                 }
                               },
-                            ),)),
+                            ),),),
                       validator: (val){
                         return isEmail(val);
                       },
@@ -258,48 +224,7 @@ class _regScreenPage2 extends State<regScreenPage2> {
         ),
       );
     return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: Size(_width, appBarHeight),
-          child: Container(
-            color: primaryDark,
-            child: SafeArea(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Navigator.canPop(context)?GestureDetector(
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          child: Icon(
-                            Icons.arrow_back_ios_rounded,
-                            color: Colors.white,
-                          ),
-                        ),
-                        onTap: (){
-                          debugPrint(_email);
-                          Navigator.of(context).pop();
-                        },
-                      ):Container(
-                        width: 40,
-                        height: 40,
-                        color: Colors.transparent,
-                      ),
-                      GestureDetector(
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          color: Colors.transparent,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-            ),
-          ),
-        ),
+      appBar: appBarUsual(context, _width),
       body: Stack(
         children: [
           Form(
@@ -320,7 +245,7 @@ class _regScreenPage2 extends State<regScreenPage2> {
                         return val.length>=8?null:"Длина пароля должна составлять не менее 8 символов";
                       },
                       onChanged: (val){
-                        passw0rd = val.toLowerCase();
+                        passw0rd = val;
                         if (_formKey.currentState.validate())
                           setState(() {
                             canRegister = true;

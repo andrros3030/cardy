@@ -11,6 +11,7 @@ import 'package:fluttericon/font_awesome5_icons.dart';
 Color primaryDark = Colors.green; //из фигмы
 Color primaryLight = Colors.lightGreen; //из фигмы
 Color primaryBlack = Color(0xFF2E3034); //из фигмы
+Color disabledGrey = Colors.grey;
 Color successColor = Color(0xFF53D769); //из фигмы
 Color errorColor = Color(0xFFFF4E4E); //из фигмы
 
@@ -51,7 +52,11 @@ ThemeData mainTheme = ThemeData(
 
 //набор текстовых стилей, все основные стили прописаны здесь. Либо использовать напрямую, либо копировать с изменением параметров
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
+TextStyle white24 = TextStyle(fontSize: 24, color: Colors.white);
 TextStyle green24 = TextStyle(fontSize: 24, color: backgroundColor);
+TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
+TextStyle red16 = TextStyle(color: Colors.red, fontSize: 16);
+TextStyle grey16 = TextStyle(color: Colors.grey, fontSize: 16);
 //TODO
 
 BuildContext contextForLogic;
@@ -97,13 +102,6 @@ webRunner(Widget home){
     appRuner(home);
 }
 
-//открывает ссылку на отправку
-openSupportEmail(BuildContext context, {bool noLocalization = false})async{
-  var url = 'mailto:';
-  //TODO: url += our_adress
-  await launch(url);
-}
-
 bool uncheckedEmailWhileRegister = true;
 bool unchekedEmail = true;
 double appBarHeight = 60;
@@ -115,7 +113,8 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
     onChanged: onChanged,
     obscureText: obscure,
     decoration: InputDecoration(
-      suffix: GestureDetector(
+      errorMaxLines: 3,
+      suffixIcon: GestureDetector(
         child: Container(
           height: 20,
           width: 20,
@@ -124,7 +123,85 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
           ),
         ),
         onTap: onSuffixTap,
-      )
+      ),
     ),
+  );
+}
+
+Widget appBarUsual(BuildContext context, double _width, {Widget child, Function onBack}){
+  return PreferredSize(
+    preferredSize: Size(_width, appBarHeight),
+    child: Container(
+      color: primaryDark,
+      child: SafeArea(
+          child: Container(
+            width: _width,
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                (Navigator.canPop(context) || onBack != null)?GestureDetector(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      Icons.arrow_back_ios_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onTap: onBack != null? onBack: (){
+                    Navigator.of(context).pop();
+                  },
+                ):Container(
+                  width: 40,
+                  height: 40,
+                  color: Colors.transparent,
+                ),
+                child == null?SizedBox():child,
+                child == null?GestureDetector(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    color: Colors.transparent,
+                  ),
+                ):SizedBox(),
+              ],
+            ),
+          )
+      ),
+    ),
+  );
+}
+
+Widget defButton({@required Function onPressed, Widget child, Color color, shape}){
+  return MaterialButton(
+    minWidth: 240,
+    onPressed: onPressed,
+    child: child,
+    color: color==null?primaryDark:color,
+    shape: shape==null?RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)):shape,
+    elevation: 8.0,
+    disabledElevation: 8.0,
+    disabledColor: disabledGrey,
+  );
+}
+
+int mainAccessInt = 100;
+String supportEmail = 'support@cardy.com'; //TODO: fill our_adress
+//открывает ссылку на отправку
+openSupportEmail(BuildContext context, {bool noLocalization = false})async{
+  var url = 'mailto:';
+  url += supportEmail;
+  await launch(url);
+}
+Widget supportEmailLabel(BuildContext context){
+  return GestureDetector(
+    child: Container(
+      child: Text(supportEmail, style: link16,),
+    ),
+    onTap: (){
+      openSupportEmail(context);
+    },
   );
 }
