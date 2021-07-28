@@ -9,8 +9,6 @@ def new_user(id):
         mode TEXT
         )""")
         kur.execute(""" INSERT INTO users VALUES (?, 'start') ON CONFLICT(id) DO UPDATE SET mode = 'after_start' """,(id,))
-        print("here")
-
     pass
 
 
