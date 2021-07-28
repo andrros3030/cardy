@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:card_app_bsk/backend/database.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
@@ -158,7 +160,11 @@ class _newCard extends State<newCard> {
   _newCard(this.catID, this.catName);
 
   double _width;
-  int images = 0;
+  int _r = new Random().nextInt(100);
+  int images = 0; // тут храним колличество изображений, если 0 - необходимо требовать nfc-метку (иначе карта - пустая)
+  int _actionIndex = 0; // тут храним порядковый номер сцены (картинка -> название -> nfc-метка -> завершающая сцена)
+  String _cardName = '';
+
   Map<String, List> _imageData = {
     'front': [],
     'back': []
@@ -250,48 +256,113 @@ class _newCard extends State<newCard> {
     );
   }
 
+  onBack()async{
+    if (_actionIndex == 0){
+      bool _res = true; // TODO: add simpledialog here
+      if (_res==null) _res=false;
+      if (_res) Navigator.pop(context);
+    }
+    else
+      setState(() {
+        _actionIndex-=1;
+      });
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    bool _unsorted = catID.length == 0;
-    _width = MediaQuery
-        .of(context)
-        .size
-        .width;
-    return Scaffold(
-      appBar: appBarUsual(context, _width,
-          child: Text('Добавьте новую карту', style: white20,)),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Column(
+  Widget contentBuilder(){
+    switch (_actionIndex){
+      case 0:
+        return Column(
           children: [
-            Container(
-              alignment: Alignment.center,
-              child: Text(_unsorted
-                  ? 'Карта появится в списке неотсортированных'
-                  : ('Карта будет сразу добавлена в категорию ' + catName),
-                style: black16, textAlign: TextAlign.center,),
-              decoration: BoxDecoration(
-                color: Color(0xFFFFFACC),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            ),
-            SizedBox(height: 6,),
-            Divider(height: 6, thickness: 2,),
-            SizedBox(height: 6),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                   "Добавьте изображение карты, если на ней есть штрихкод"),
             ),
-            AnimatedContainer(
+            Container(
               width: _width,
-              duration: Duration(milliseconds: 200),
               padding: EdgeInsets.symmetric(vertical: 6),
               child: imageRow(),
             ),
+            Container(
+              width: _width,
+              alignment: Alignment.center,
+              child: defButton(
+                onPressed: () {setState(() {
+                    _actionIndex+=1;
+                  });
+                },
+                color: primaryDark,
+                child: Text(images==0?'Пропустить':'Далее', style: white16,),
+              ),
+            ),
           ],
+        );
+        break;
+      case 1:
+        return Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: TextFormField(
+                onChanged: (val){
+                  _cardName = val;
+                },
+              ),
+            ),
+            SizedBox(height: 12,),
+            Container(
+              child: defButton(
+                onPressed: (_cardName.length==0 && images==0)?null:(){},
+                child: Text((_cardName.length==0 && images>0)?'Пропустить':'Далее', style: white16,),
+              ),
+            ),
+          ],
+        );
+        break;
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    bool _unsorted = catID.length == 0;
+    _width = MediaQuery.of(context).size.width;
+    return WillPopScope(
+      onWillPop: ()async{
+        await onBack();
+        return false;
+      },
+      child: Scaffold(
+        appBar: appBarUsual(context, _width, child: Text('Добавьте новую карту', style: white20,), onBack: onBack,),
+        body: AnimatedContainer(
+          color: getColorForTile(_actionIndex+_r),
+          duration: Duration(milliseconds: 400),
+          padding: EdgeInsets.only(left: 12, top: 6, right: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(topRight: Radius.circular(36), topLeft: Radius.circular(36)),
+            ),
+            padding: EdgeInsets.only(bottom: 6),
+            child: ListView(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(_unsorted ? 'Карта появится в списке неотсортированных' : ('Карта будет сразу добавлена в категорию ' + catName), style: black16, textAlign: TextAlign.center,),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFFFFACC),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0.5, 1), blurRadius: 2.0)]
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                ),
+                SizedBox(height: 6,),
+                Divider(height: 6, thickness: 2,),
+                SizedBox(height: 6),
+                contentBuilder(),
+              ],
+            ),
+          ),
         ),
       ),
     );
