@@ -19,7 +19,7 @@ class mainPage extends StatefulWidget {
 class _mainPage extends State<mainPage> {
   double cardHeight = 160;
   double cardExtended = 200;
-  List categories = [];
+  List<Map> categories = [];
   Map cards = {};
   bool _loading = true;
   double _width;
@@ -97,7 +97,7 @@ class _mainPage extends State<mainPage> {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Stack(
                 children: [
-                  Center(child: Text(_data['name'], style: green24,),),
+                  Center(child: Text(_data['name'], style: def24,),),
                   Align(
                     alignment: Alignment.topRight,
                     child: counter(_data['id']),
@@ -148,7 +148,7 @@ class _mainPage extends State<mainPage> {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Stack(
                 children: [
-                  Center(child: Text(_data['name'], style: green24,),),
+                  Center(child: Text(_data['name'], style: def24,),),
                   Align(
                     alignment: Alignment.topRight,
                     child: counter(_data['id']),
@@ -239,7 +239,7 @@ class _mainPage extends State<mainPage> {
                 child: Stack(
                     children: [
                       Center(
-                        child: Text("Card: " + _id, style: green24,),
+                        child: Text("Card: " + _id, style: def24,),
                       ),
                       Positioned(
                           right: 0.0,
@@ -438,6 +438,15 @@ class _mainPage extends State<mainPage> {
     });
   }
 
+  creatNewCard()async{
+    //await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard');
+    String _curName = _currentState.length>0?categories[categories.indexWhere((element) => element['id']==_currentState)]['name']:'';
+    bool res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>newCard(_currentState, _curName)));
+    if (res == null) res = false;
+    if (res)
+      setState(() {_loading = true;});
+  }
+
   @override
   Widget build(BuildContext context) {
     _width = MediaQuery.of(context).size.width;
@@ -533,12 +542,7 @@ class _mainPage extends State<mainPage> {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed: ()async{
-            await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard');
-            setState(() {
-              _loading = true;
-            });
-          },
+          onPressed: creatNewCard,
         ),
       );
     else{
@@ -578,12 +582,7 @@ class _mainPage extends State<mainPage> {
           ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
-            onPressed: ()async{
-              await localDB.db.createCard(creator_id: accountGuid, cardName: 'testCard', category: _currentState);
-              setState(() {
-                _loading = true;
-              });
-            },
+            onPressed: creatNewCard,
           ),
         ),
       );
