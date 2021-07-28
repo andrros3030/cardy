@@ -24,21 +24,10 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
   _AuthorizationScreen({this.log, this.message});
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  tryAuth() async{
-    if (await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass))){
-=======
-=======
->>>>>>> 2b4bd17629f861288fab3992bf18387c3e4387d2
   Future<void> tryAuth() async{
     String _tmp = await localDB.db.accountExistsLocal(email: log, hashPass: getHash(_pass));
     if (_tmp.length > 0){
       accountGuid = _tmp;
-<<<<<<< HEAD
->>>>>>> 2b4bd17629f861288fab3992bf18387c3e4387d2
-=======
->>>>>>> 2b4bd17629f861288fab3992bf18387c3e4387d2
       saveCreditionalsIfNeeded(email: log, password: getHash(_pass));
       if (await localDB.db.hasSecret(acc_id: accountGuid)){
         appRuner(pinScreen());
@@ -51,7 +40,6 @@ class _AuthorizationScreen extends State<AuthorizationScreen> {
       //TODO: show "incorrect email+password" message
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -159,11 +147,9 @@ void openMain() async{ //этот метод запускает главный �
 
 void start() async{
   authorized = false;
-
   accountGuid = '';
   accountEmail = '';
   pass = '';
-
   await localDB.db.InitDatabase();
   await initHive();
   if (needAutoRegistration)
