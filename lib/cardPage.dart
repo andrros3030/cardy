@@ -1,10 +1,14 @@
 import 'dart:math';
+import 'dart:io';
 
 import 'package:card_app_bsk/backend/database.dart';
+import 'package:card_app_bsk/backend/imageScreen.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class cardPage extends StatefulWidget {
   Map cardData;
@@ -154,6 +158,7 @@ class newCard extends StatefulWidget{
 }
 
 class _newCard extends State<newCard> {
+  final _picker = ImagePicker();
   String catID;
   String catName;
 
@@ -170,16 +175,97 @@ class _newCard extends State<newCard> {
     'back': []
   };
 
+  //собсна сам выбор изображения, вызывается по нажатию одной из двух кнопок и запускает плагин
+  Future<File> _getImage(ImageSource source)async{
+    final _picked = await _picker.getImage(source: source, preferredCameraDevice: CameraDevice.rear);
+    if (_picked!=null)
+      return File(_picked.path);
+    else
+      return null;
+  }
+
+  _checkFile(var file, BuildContext context, bool needSave)async{
+    if (file==null)
+      debugPrint("incorrect");
+    //await _ifImageNull(context);
+    else{
+      File imageFile = file;
+      Navigator.pop(context, imageFile);
+    }
+  }
+
+  loadImage() async{
+    File res = await showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (BuildContext context) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topRight: Radius.circular(15), topLeft: Radius.circular(15)),
+        ),
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color:backgroundColor,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: EdgeInsets.all(8),
+                  child: IconButton(
+                      icon: Icon(Icons.photo_camera, color: Colors.white,),
+                      onPressed: ()async{
+                        var res = await _getImage(ImageSource.camera);
+                        await _checkFile(res, context, false);
+                      }
+                  ),
+                ),
+                SizedBox(height: 5,),
+                Text("Камера", style: grey16,),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color:backgroundColor,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: EdgeInsets.all(8),
+                  child: IconButton(
+                    icon: Icon(Icons.photo, color: Colors.white),
+                    onPressed: ()async{
+                      var res = await _getImage(ImageSource.gallery);
+                      await _checkFile(res, context, false);
+                    },
+                  ),
+                ),
+                SizedBox(height: 5,),
+                Text("Галерея", style: grey16,),
+              ],
+            )
+          ],
+        ),
+      );
+    },);
+    if (res!=null){
+      images+=1;
+      if (_imageData['front'].length==0)
+        _imageData['front'] = [res];
+      else
+        _imageData['back'] = [res];
+      setState(() {});
+    }
+    //return res;
+  }
+
   Widget pictureTaker() {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          if (_imageData['front'].length == 0)
-            _imageData['front'] = ['newImage'];
-          else
-            _imageData['back'] = ['newImage'];
-          images += 1;
-        });
+        loadImage();
       },
       child: Container(
         decoration: BoxDecoration(
@@ -192,23 +278,32 @@ class _newCard extends State<newCard> {
   }
 
   Widget pictureBuilder(int index) {
+    File _cur = index == 0 ? _imageData['front'][0]:_imageData['back'][0];
     return Container(
       width: 64 * 2.0,
       height: 48 * 2.0,
       child: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: primaryDark, width: 3),
-              color: primaryLight,
+          GestureDetector(
+            onTap: ()async{
+              await Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(_cur)));
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: primaryDark, width: 3),
+                color: primaryLight,
+              ),
+              padding: EdgeInsets.all(12),
+              child: Image.file(
+                _cur,
+                width: _width/2 - 36,
+              ),
             ),
-            padding: EdgeInsets.all(12),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Text(index == 0 ? 'Лицевая' : 'Оборотная', style: white16,),
           ),
-          Align(),
           Align(
             alignment: Alignment.topLeft,
             child: GestureDetector(
@@ -303,10 +398,34 @@ class _newCard extends State<newCard> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12),
-              child: TextFormField(
-                onChanged: (val){
-                  _cardName = val;
-                },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(border: Border.all(
+                    color: disabledGrey, width: 1
+                ), borderRadius: BorderRadius.circular(4)),
+                child: TextFormField(
+                  validator: (val){
+                    if (val.length>36)
+                      return 'Название карты не должно превышать 36 символов';
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    labelText: "Название карты",
+                    labelStyle: grey16,
+                    contentPadding: EdgeInsets.zero,
+                    counterText: '',
+                    errorMaxLines: 3,
+                  ),
+                  maxLines: 1,
+                  textInputAction: TextInputAction.done,
+                  style: grey16,
+                  onChanged: (val){
+                    setState(() {
+                      _cardName = val;
+                    });;
+                  },
+                ),
               ),
             ),
             SizedBox(height: 12,),
@@ -320,6 +439,7 @@ class _newCard extends State<newCard> {
         );
         break;
     }
+    return Container();
   }
 
 
@@ -359,7 +479,9 @@ class _newCard extends State<newCard> {
                 SizedBox(height: 6,),
                 Divider(height: 6, thickness: 2,),
                 SizedBox(height: 6),
-                contentBuilder(),
+                Form(
+                  autovalidateMode: AutovalidateMode.always, child: contentBuilder(),
+                ),
               ],
             ),
           ),
