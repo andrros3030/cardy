@@ -386,6 +386,31 @@ class _newCard extends State<newCard> {
       });
   }
 
+  Widget hintBox(String hint){
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+        width: _width,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Color(0xFFD7B9F3).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.info_outline, color: Color(0xFFD7B9F3),),
+              SizedBox(width: 8,),
+              Flexible(
+                child: Text(hint),
+              ),
+            ],
+          ),
+        ),
+      );
+  }
+
   Widget contentBuilder(){
     switch (_actionIndex){
       case 0:
@@ -401,6 +426,7 @@ class _newCard extends State<newCard> {
               padding: EdgeInsets.symmetric(vertical: 6),
               child: imageRow(),
             ),
+            hintBox(' Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\n После выбора изображения вы сможете его обрезать'),
             Container(
               width: _width,
               alignment: Alignment.center,
@@ -451,7 +477,7 @@ class _newCard extends State<newCard> {
                 ),
               ),
             ),
-            SizedBox(height: 12,),
+            hintBox('Карты с NFC без изображения необходимо назвать, чтобы они не потерялись!'),
             Container(
               child: defButton(
                 onPressed: (_cardName.length==0 && images==0)?null:(){},
