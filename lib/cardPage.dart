@@ -6,9 +6,7 @@ import 'package:card_app_bsk/backend/imageScreen.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttericon/rpg_awesome_icons.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 
 class cardPage extends StatefulWidget {
   Map cardData;
@@ -170,10 +168,7 @@ class _newCard extends State<newCard> {
   int _actionIndex = 0; // тут храним порядковый номер сцены (картинка -> название -> nfc-метка -> завершающая сцена)
   String _cardName = '';
 
-  Map<String, List> _imageData = {
-    'front': [],
-    'back': []
-  };
+  List<File> _imageData = [null, null]; // тут хранятся объекты File, которые при создании карты будут конвертированы в base64 string
 
   //собсна сам выбор изображения, вызывается по нажатию одной из двух кнопок и запускает плагин
   Future<File> _getImage(ImageSource source)async{
@@ -192,6 +187,13 @@ class _newCard extends State<newCard> {
       File imageFile = file;
       Navigator.pop(context, imageFile);
     }
+  }
+
+  _removeImage(int index)async{
+    setState(() {
+      _imageData[index] = null;
+      images -= 1;
+    });
   }
 
   loadImage() async{
@@ -253,10 +255,10 @@ class _newCard extends State<newCard> {
     },);
     if (res!=null){
       images+=1;
-      if (_imageData['front'].length==0)
-        _imageData['front'] = [res];
+      if (_imageData[0]==null)
+        _imageData[0] = res;
       else
-        _imageData['back'] = [res];
+        _imageData[1] = res;
       setState(() {});
     }
     //return res;
@@ -278,48 +280,69 @@ class _newCard extends State<newCard> {
   }
 
   Widget pictureBuilder(int index) {
-    File _cur = index == 0 ? _imageData['front'][0]:_imageData['back'][0];
+    File _cur = _imageData[index];
     return Container(
-      width: 64 * 2.0,
-      height: 48 * 2.0,
-      child: Stack(
+      width: _width/2 - 30,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          GestureDetector(
-            onTap: ()async{
-              await Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(_cur)));
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: primaryDark, width: 3),
-                color: primaryLight,
-              ),
-              padding: EdgeInsets.all(12),
-              child: Image.file(
-                _cur,
-                width: _width/2 - 36,
+          Container(
+            child: GestureDetector(
+              onTap: ()async{
+                File _res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(_cur)));
+                if (_res == null){
+                  _removeImage(index);
+                }
+                else{
+                  _imageData[index] = _res;
+                  setState((){});
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: getColorForTile(_r), width: 3),
+                ),
+                child: Image.file(
+                  _cur,
+                ),
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Text(index == 0 ? 'Лицевая' : 'Оборотная', style: white16,),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: GestureDetector(
-              child: Container(
-                alignment: Alignment.center,
-                child: Icon(Icons.delete, color: Colors.red, size: 30,),
-                padding: EdgeInsets.all(4),
-                width: 40,
-                height: 40,
-              ),
-              onTap: () async {
-                setState(() {
-                  _imageData[index == 0 ? 'front' : 'back'] = [];
-                  images -= 1;
-                });
-              },
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [primaryDark, primaryLight], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12))
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                    padding: EdgeInsets.all(4),
+                    width: 40,
+                    height: 40,
+                  ),
+                  onTap:(){ _removeImage(index);},
+                ),
+                Expanded(child: Text(index == 0 ? 'Лицевая' : 'Оборотная', style: white16.copyWith(fontSize: 12), textAlign: TextAlign.center,),),
+                GestureDetector(
+                  onTap: ()async{
+                    File croppedFile = await cropImage(_cur);
+                    if (croppedFile!=null){
+                      if (index==0)
+                        _imageData[0] = croppedFile;
+                      else
+                        _imageData[1] = croppedFile;
+                      setState(() {});
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(6),
+                    child: Icon(Icons.crop, color: Colors.white, size: 30,),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -338,8 +361,8 @@ class _newCard extends State<newCard> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _imageData['front'].length > 0 ? pictureBuilder(0) : pictureTaker(),
-          _imageData['front'].length > 0 ? pictureTaker() : pictureBuilder(1),
+          _imageData[0]!=null ? pictureBuilder(0) : pictureTaker(),
+          _imageData[0]!=null ? pictureTaker() : pictureBuilder(1),
         ],
       );
     return Row(
