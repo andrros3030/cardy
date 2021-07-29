@@ -209,3 +209,5 @@ Widget supportEmailLabel(BuildContext context){
     },
   );
 }
+double cardHeight = 160;
+double cardExtended = 200;

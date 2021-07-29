@@ -17,8 +17,6 @@ class mainPage extends StatefulWidget {
 
 
 class _mainPage extends State<mainPage> {
-  double cardHeight = 160;
-  double cardExtended = 200;
   List<Map> categories = [];
   Map cards = {};
   bool _loading = true;
@@ -238,6 +236,11 @@ class _mainPage extends State<mainPage> {
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 child: Stack(
                     children: [
+                      _data['frontImage']==null?SizedBox():Container(
+                        height: cardHeight,
+                        width: _width*0.9,
+                        child: Image.memory(_data['frontImage'],fit: BoxFit.cover),
+                      ),
                       Center(
                         child: Text("Card: " + _id, style: def24,),
                       ),

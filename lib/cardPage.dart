@@ -1,12 +1,17 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:card_app_bsk/backend/database.dart';
 import 'package:card_app_bsk/backend/imageScreen.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+
+
 
 class cardPage extends StatefulWidget {
   Map cardData;
@@ -22,7 +27,7 @@ class _cardPage extends State<cardPage> {
 
   Widget cardBig(){
     return Container(
-      height: 160/0.9,
+      height: cardExtended,
       width: _width,
       padding: EdgeInsets.symmetric(vertical: 12),
       child: Container(
@@ -43,6 +48,11 @@ class _cardPage extends State<cardPage> {
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             child: Stack(
                 children: [
+                  cardData['frontImage']==null?SizedBox():Container(
+                    width: _width,
+                    height: cardExtended,
+                    child: Image.memory(cardData['frontImage'], fit: BoxFit.scaleDown,),
+                  ),
                   Center(
                     child: Text("Card: " + cardData['id'], style: def24,),
                   ),
@@ -167,16 +177,37 @@ class _newCard extends State<newCard> {
   int images = 0; // тут храним колличество изображений, если 0 - необходимо требовать nfc-метку (иначе карта - пустая)
   int _actionIndex = 0; // тут храним порядковый номер сцены (картинка -> название -> nfc-метка -> завершающая сцена)
   String _cardName = '';
+  String _nfcData = '';
+  bool _loadingNFC = false;
+
+  _loadNFC()async{
+    setState(() {
+      _loadingNFC = true;
+    });
+    Future.delayed(Duration(seconds: 2)).then((value){
+      setState(() {
+        _nfcData = 'some text data here';
+        _loadingNFC = false;
+      });
+    });
+  }
 
   List<File> _imageData = [null, null]; // тут хранятся объекты File, которые при создании карты будут конвертированы в base64 string
 
   //собсна сам выбор изображения, вызывается по нажатию одной из двух кнопок и запускает плагин
   Future<File> _getImage(ImageSource source)async{
-    final _picked = await _picker.getImage(source: source, preferredCameraDevice: CameraDevice.rear);
-    if (_picked!=null)
-      return File(_picked.path);
-    else
+    try{
+      final _picked = await _picker.pickImage(source: source, preferredCameraDevice: CameraDevice.rear);
+      if (_picked!=null)
+        return File(_picked.path);
+      else
+        return null;
+    }
+    catch(e){
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: 'Ошибка доступа к камере',); //TODO:
       return null;
+    }
   }
 
   _checkFile(var file, BuildContext context, bool needSave)async{
@@ -458,6 +489,7 @@ class _newCard extends State<newCard> {
                       return 'Название карты не должно превышать 36 символов';
                     return null;
                   },
+                  initialValue: _cardName,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     labelText: "Название карты",
@@ -468,7 +500,7 @@ class _newCard extends State<newCard> {
                   ),
                   maxLines: 1,
                   textInputAction: TextInputAction.done,
-                  style: grey16,
+                  style: black16,
                   onChanged: (val){
                     setState(() {
                       _cardName = val;
@@ -480,22 +512,97 @@ class _newCard extends State<newCard> {
             hintBox('Карты с NFC без изображения необходимо назвать, чтобы они не потерялись!'),
             Container(
               child: defButton(
-                onPressed: (_cardName.length==0 && images==0)?null:(){},
+                onPressed: (_cardName.length==0 && images==0)?null:(){
+                  if (_cardName.length==0){
+                    setState((){
+                      _actionIndex+=2;
+                    });
+                  }
+                  else{
+                    setState((){
+                      _actionIndex+=1;
+                    });
+                  }
+                },
                 child: Text((_cardName.length==0 && images>0)?'Пропустить':'Далее', style: white16,),
               ),
             ),
           ],
         );
         break;
+      case 2:
+        return Column(
+          children: [
+            hintBox('Тут будет процесс добавления nfc метки'),
+            Container(
+              child: defButton(
+                onPressed: _loadingNFC?null:(){
+                  if (_nfcData.length==0){
+                    _loadNFC();
+                  }
+                  else{
+                    setState(() {
+                      _actionIndex+=1;
+                    });
+                  }
+                },
+                child: _loadingNFC?CircularProgressIndicator():Text(_nfcData.length==0?'Скопировать NFC-метку':'Добавить карту', style: white16),
+              ),
+            ),
+          ],
+        );
+        break;
+      case 3:
+        return Container();
+        break;
     }
     return Container();
   }
 
+  bool alreadyClosing = false;
+  closeTab()async{
+    alreadyClosing = true;
+    Uint8List b1, b2;
+    if (_imageData[0] != null)
+      b1 = await _imageData[0].readAsBytes();
+    if (_imageData[1] != null)
+      b2 = await _imageData[1].readAsBytes();
+
+    if (b1 == null&& b2 != null){
+      b1 = Uint8List.fromList(b2);
+      b2 = null;
+    }
+    localDB.db.createCard(
+      creator_id: accountGuid,
+      category: catID.length>0?catID:null,
+      cardName: _cardName.length>0?_cardName:null,
+      blob1: b1!=null?base64Encode(b1):null, blob2: b2!=null?base64Encode(b2):null
+    );
+    Future.delayed(Duration(seconds: 2)).then((value){
+      Navigator.pop(context, true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     bool _unsorted = catID.length == 0;
     _width = MediaQuery.of(context).size.width;
+    if (_actionIndex == 3){
+      if (!alreadyClosing)
+        closeTab();
+      return WillPopScope(
+        onWillPop: ()async{return false;},
+        child: Scaffold(
+          body: Container(
+            width: _width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [primaryLight, primaryDark], begin: Alignment.bottomRight, end: Alignment.topLeft),
+            ),
+          ),
+        ),
+      );
+    }
     return WillPopScope(
       onWillPop: ()async{
         await onBack();
@@ -505,7 +612,7 @@ class _newCard extends State<newCard> {
         appBar: appBarUsual(context, _width, child: Text('Добавьте новую карту', style: white20,), onBack: onBack,),
         body: AnimatedContainer(
           color: getColorForTile(_actionIndex+_r),
-          duration: Duration(milliseconds: 400),
+          duration: Duration(milliseconds: 800),
           padding: EdgeInsets.only(left: 12, top: 6, right: 12),
           child: Container(
             decoration: BoxDecoration(

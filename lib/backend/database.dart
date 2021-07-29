@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
@@ -121,7 +122,9 @@ class localDB {
         'ctg.V_BACKGROUND_COLOR as ctgBG, '
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
-        'crd.PI_ORDER as CORDER '    //TODO: остальные данные карты
+        'crd.PI_ORDER as CORDER, '
+        'crd.B_IMAGE_FRONT as frontImage, '
+        'crd.B_IMAGE_BACK as backImage '    //TODO: остальные данные карты
         'from T_CARD crd JOIN '
         'T_ACCESS access on crd.PK_ID = access.FK_CARD LEFT JOIN '
         'T_CATEGORY ctg on access.FK_CATEGORY = ctg.pk_id JOIN '
@@ -147,6 +150,8 @@ class localDB {
         'id': _data[i]['CAD'],
         'access': _data[i]['PRIORITY'],
         'name': _data[i]['CNAME'],
+        'frontImage':_data[i]['frontImage'].toString().length>4?base64Decode(_data[i]['frontImage']):null,
+        'backImage':_data[i]['backImage'].toString().length>4?base64Decode(_data[i]['backImage']):null,
         'order': _data[i]['CORDER'],
       };
       if (_cards.containsKey(_key))
@@ -188,10 +193,13 @@ class localDB {
     saveCreditionals(email: email, password: hash_pass);
     return _id;
   }
-  createCard({@required String creator_id, @required String cardName, String cardComment, String category})async{
+  createCard({@required String creator_id, String cardName, String cardComment, String category, String blob1, String blob2})async{
     Database db = await newDB;
     String card_id = guid();
-    await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [card_id, cardName, cardComment, creator_id, timeStamp()]);
+    await db.rawInsert('INSERT INTO T_CARD(PK_ID, PV_NAME, V_COMMENT, B_IMAGE_FRONT, B_IMAGE_BACK, IV_USER, IT_CHANGE) '
+        'VALUES(?, ?, ?, ?, ?, ?, ?)', [card_id, cardName==null?'Без названия':cardName, cardComment,
+      blob1, blob2,
+      creator_id, timeStamp()]);
     if (category == null)
       await db.rawInsert('INSERT INTO T_ACCESS(PK_ID, FK_ACCOUNT, FK_CARD, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), creator_id, card_id, creator_id, timeStamp()]);
     else
