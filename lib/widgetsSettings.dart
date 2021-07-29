@@ -192,6 +192,9 @@ Widget defButton({@required Function onPressed, Widget child, Color color, shape
 }
 
 int mainAccessInt = 100;
+double cardHeight = 160;
+double cardExtended = 200;
+int noteLength = 1000;
 String supportEmail = 'support@cardy.com'; //TODO: fill our_adress
 //открывает ссылку на отправку
 openSupportEmail(BuildContext context, {bool noLocalization = false})async{
@@ -209,5 +212,3 @@ Widget supportEmailLabel(BuildContext context){
     },
   );
 }
-double cardHeight = 160;
-double cardExtended = 200;

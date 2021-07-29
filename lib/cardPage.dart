@@ -22,67 +22,160 @@ class cardPage extends StatefulWidget {
 
 class _cardPage extends State<cardPage> {
   double _width;
+  PageController _controller = PageController();
+  int _imageNumber = 0;
   Map cardData;
   _cardPage(this.cardData);
 
   Widget cardBig(){
-    return Container(
-      height: cardExtended,
-      width: _width,
-      padding: EdgeInsets.symmetric(vertical: 12),
-      child: Container(
-        decoration: BoxDecoration(
-            color:Colors.white,
-            boxShadow: [BoxShadow(
-              color: Color.fromRGBO(228, 228, 231, 0.8),
-              blurRadius: 10.0,
-              spreadRadius: 2.0,
-              //offset: Offset(1,0)
-            )
-            ],
-            borderRadius: BorderRadius.circular(8)
-        ),
-        child: Card(
-          elevation: 0.0,
+    List<Widget> _images = [Hero(
+      tag: cardData['id'],
+      child: GestureDetector(
+          onTap: cardData['frontImage']==null?null:(){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(null, imageData: cardData['frontImage'],)));
+          },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            child: Stack(
-                children: [
-                  cardData['frontImage']==null?SizedBox():Container(
-                    width: _width,
-                    height: cardExtended,
-                    child: Image.memory(cardData['frontImage'], fit: BoxFit.scaleDown,),
-                  ),
-                  Center(
-                    child: Text("Card: " + cardData['id'], style: def24,),
-                  ),
-                  Positioned(
-                      right: 0.0,
-                      top: 0.0,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(2, (index) => Column(
-                                  children: List.generate(3, (index) => Container(
-                                    width: 4.0,
-                                    height: 4.0,
-                                    margin: EdgeInsets.only(bottom: 2, right: 2),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Color.fromRGBO(46, 48, 52, 0.2)
-                                    ),
-                                  ))
-                              ))
-                          ),
-                        ],
-                      )
-                  )
-                ]
+            decoration: BoxDecoration(
+              color:Colors.white,
+              boxShadow: [BoxShadow(
+                color: Color.fromRGBO(228, 228, 231, 0.8),
+                blurRadius: 10.0,
+                spreadRadius: 2.0,)],
+              borderRadius: BorderRadius.circular(8)
+          ),
+            child: Card(
+            elevation: 8.0,
+            child: cardData['frontImage']==null?Center(child: Text("Карта без изображения"),):Container(
+              width: _width,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              height: cardExtended,
+              child: Image.memory(cardData['frontImage'], fit: BoxFit.scaleDown,),
             ),
           ),
+      ),
         ),
+    )];
+    if (cardData['backImage']!=null){
+      _images.add(
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(null, imageData: cardData['backImage'],)));
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  color:Colors.white,
+                  boxShadow: [BoxShadow(
+                    color: Color.fromRGBO(228, 228, 231, 0.8),
+                    blurRadius: 10.0,
+                    spreadRadius: 2.0,)],
+                  borderRadius: BorderRadius.circular(8)
+              ),
+              child: Card(
+                elevation: 8.0,
+                child: Container(
+                  width: _width,
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  height: cardExtended,
+                  child: Image.memory(cardData['backImage'], fit: BoxFit.scaleDown,),
+                ),
+              ),
+            ),
+          )
+      );
+    }
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 400),
+      height: cardExtended+40,
+      child: Column(
+        children: [
+          Container(
+            height: cardExtended,
+            width: _width,
+            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+            child: PageView.builder(
+              controller: _controller,
+              physics: _images.length==1?NeverScrollableScrollPhysics():null,
+              itemBuilder: (cntxt, index){
+                return _images[index%_images.length];
+              },
+              onPageChanged: (i) {
+                setState(() {
+                  _imageNumber = i % _images.length;
+                });
+              },
+              itemCount: _images.length,
+            ),
+          ),
+          Container(
+            width: _width,
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(_images.length, (index) => GestureDetector(
+                child: GestureDetector(
+                  onTap: (){
+                    _controller.animateToPage(index, duration: Duration(milliseconds: 400), curve: Curves.ease);
+                  },
+                  child: Container(
+                    width: 8.0,
+                    height: 8.0,
+                    margin: EdgeInsets.only(bottom: 10, right: 5),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _imageNumber == index
+                          ? Color.fromRGBO(0, 0, 0, 0.9)
+                          : Color.fromRGBO(0, 0, 0, 0.2),
+                    ),
+                  ),
+                ),
+              ),),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  FocusNode _noteFocus = new FocusNode();
+  TextEditingController _note = new TextEditingController();
+  bool textChange = false;
+  saveText()async{
+    _noteFocus.unfocus();
+    await localDB.db.saveNote(cardID: cardData['id'], noteText: cardData['note']);
+    textChange = false;
+    if(mounted)
+      setState(() {});
+  }
+  Widget _noteField(){
+    //if (cardData['note']==null)
+    //  cardData['note'] = '';
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(border: Border.all(color: disabledGrey, width: 1), borderRadius: BorderRadius.circular(4)),
+      child: TextFormField(
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          labelText: "Заметка",
+          labelStyle: grey16,
+          contentPadding: EdgeInsets.zero,
+          counterText: '',
+          hintText: 'Добавьте сюда ключевые слова, они могут пригодиться при поиске карты :)',
+          hintMaxLines: 4,
+        ),
+        //initialValue: cardData['note'],
+        maxLength: noteLength,
+        textInputAction: TextInputAction.newline,
+        keyboardType: TextInputType.multiline,
+        expands: false,
+        maxLines: null,
+        minLines: 1,
+        focusNode: _noteFocus,
+        controller: _note,
+        style: black16,
+        onChanged: (val) {
+          cardData['note'] = val;
+          textChange = true;
+        },
       ),
     );
   }
@@ -93,6 +186,9 @@ class _cardPage extends State<cardPage> {
       children: [
         cardData['name'].toString().length > 0?Container(width: _width, alignment: Alignment.center, child: Text(cardData['name'], style: def24,), padding: EdgeInsets.only(bottom: 12),):SizedBox(),
         cardData['access'] == mainAccessInt?SizedBox(height: 12,):Container(padding: EdgeInsets.only(top:12),child: Text(cardData['access'] > mainAccessInt?'Владелец карты разрешил Вам делиться этой картой':'Владелец карты запретил Вам делиться этой картой')),
+        SizedBox(height: 12,),
+        _noteField(),
+        SizedBox(height: 12,),
         defButton(
           onPressed: cardData['access'] >= mainAccessInt? (){}:null, //TODO: предложить варианты, как поделиться картой
           child: Row(
@@ -138,19 +234,33 @@ class _cardPage extends State<cardPage> {
   Widget build(BuildContext context){
     _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      appBar: appBarUsual(context, _width),
-      body: Container(
-        width: _width,
-        child: ListView(
-          children: [
-            Hero(
-              tag: cardData['id'],
-              child: cardBig(),
+    _note.text = cardData['note'];
+    return WillPopScope(
+      onWillPop: ()async{
+        if(!textChange)
+          return true;
+        else{
+          await saveText();
+          return true;
+        }
+      },
+      child: Scaffold(
+        appBar: appBarUsual(context, _width),
+        body: GestureDetector(
+          onTap: (){
+            saveText();
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            width: _width,
+            child: ListView(
+              children: [
+                cardBig(),
+                Divider(height: 4, thickness: 2,),
+                actions(),
+              ],
             ),
-            Divider(height: 4, thickness: 2,),
-            actions(),
-          ],
+          ),
         ),
       ),
     );
@@ -313,36 +423,41 @@ class _newCard extends State<newCard> {
   Widget pictureBuilder(int index) {
     File _cur = _imageData[index];
     return Container(
-      width: _width/2 - 30,
+      padding: EdgeInsets.symmetric(horizontal: 6),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            child: GestureDetector(
-              onTap: ()async{
-                File _res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(_cur)));
-                if (_res == null){
-                  _removeImage(index);
-                }
-                else{
-                  _imageData[index] = _res;
-                  setState((){});
-                }
-              },
+          Card(
+            elevation: 8.0,
+            child: Container(
+              width: _width*0.9,
+              height: cardExtended,
               child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: getColorForTile(_r), width: 3),
-                ),
-                child: Image.file(
-                  _cur,
+                child: GestureDetector(
+                  onTap: ()async{
+                    File _res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>showFullImage(_cur, canEdit:true,)));
+                    if (_res == null){
+                      _removeImage(index);
+                    }
+                    else{
+                      _imageData[index] = _res;
+                      setState((){});
+                    }
+                  },
+                  child: Container(
+                    child: Image.file(
+                      _cur,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
           Container(
+            width: _width*0.9-8,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [primaryDark, primaryLight], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12))
+                gradient: LinearGradient(colors: [primaryDark, primaryLight], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12))
             ),
             child: Row(
               children: [
@@ -356,7 +471,7 @@ class _newCard extends State<newCard> {
                   ),
                   onTap:(){ _removeImage(index);},
                 ),
-                Expanded(child: Text(index == 0 ? 'Лицевая' : 'Оборотная', style: white16.copyWith(fontSize: 12), textAlign: TextAlign.center,),),
+                Expanded(child: Text(index == 0 ? 'Лицевая' : 'Оборотная', style: white16, textAlign: TextAlign.center,),),
                 GestureDetector(
                   onTap: ()async{
                     File croppedFile = await cropImage(_cur);
@@ -389,15 +504,16 @@ class _newCard extends State<newCard> {
         child: pictureTaker(),
       );
     if (images == 1)
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      return Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: WrapAlignment.center,
+        runSpacing: 6.0,
         children: [
           _imageData[0]!=null ? pictureBuilder(0) : pictureTaker(),
           _imageData[0]!=null ? pictureTaker() : pictureBuilder(1),
         ],
       );
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Wrap(
         children: [
           pictureBuilder(0),
           pictureBuilder(1),
@@ -450,14 +566,15 @@ class _newCard extends State<newCard> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                  "Добавьте изображение карты, если на ней есть штрихкод"),
+                  "Добавьте изображение карты, если на ней есть штрихкод", style: black16, textAlign: TextAlign.center,),
             ),
             Container(
               width: _width,
+              //  height: (cardExtended+40)*2,
               padding: EdgeInsets.symmetric(vertical: 6),
               child: imageRow(),
             ),
-            hintBox(' Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\n После выбора изображения вы сможете его обрезать'),
+            hintBox(' Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\n После выбора изображения обрежьте его под формат карты '),
             Container(
               width: _width,
               alignment: Alignment.center,
@@ -559,7 +676,9 @@ class _newCard extends State<newCard> {
     return Container();
   }
 
+  //храним в этой переменной флаг - было ли начато завершение сеанса, чтобы второй раз не запустить его
   bool alreadyClosing = false;
+  //метод преобразует данные в необходимые для sql и сохраняет карту, после чего закрывает окно
   closeTab()async{
     alreadyClosing = true;
     Uint8List b1, b2;
@@ -578,7 +697,7 @@ class _newCard extends State<newCard> {
       cardName: _cardName.length>0?_cardName:null,
       blob1: b1!=null?base64Encode(b1):null, blob2: b2!=null?base64Encode(b2):null
     );
-    Future.delayed(Duration(seconds: 2)).then((value){
+      Future.delayed(Duration(seconds: 2)).then((value){
       Navigator.pop(context, true);
     });
   }
@@ -595,9 +714,19 @@ class _newCard extends State<newCard> {
         child: Scaffold(
           body: Container(
             width: _width,
+            padding: EdgeInsets.all(24),
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: [primaryLight, primaryDark], begin: Alignment.bottomRight, end: Alignment.topLeft),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.done_all, color: Colors.white, size: 36,),
+                SizedBox(height: 24,),
+                Text('Карта успешно добавлена в Ваш кошелек!', style: white24, textAlign: TextAlign.center,),
+              ],
             ),
           ),
         ),
@@ -613,31 +742,32 @@ class _newCard extends State<newCard> {
         body: AnimatedContainer(
           color: getColorForTile(_actionIndex+_r),
           duration: Duration(milliseconds: 800),
-          padding: EdgeInsets.only(left: 12, top: 6, right: 12),
+          padding: EdgeInsets.symmetric(horizontal: 12),
           child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(topRight: Radius.circular(36), topLeft: Radius.circular(36)),
-            ),
-            padding: EdgeInsets.only(bottom: 6),
+            color: Colors.white,
             child: ListView(
               children: [
+                /*
+                SizedBox(height: 6),
                 Container(
-                  alignment: Alignment.center,
-                  child: Text(_unsorted ? 'Карта появится в списке неотсортированных' : ('Карта будет сразу добавлена в категорию ' + catName), style: black16, textAlign: TextAlign.center,),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFFFFACC),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0.5, 1), blurRadius: 2.0)]
+                  padding: EdgeInsets.symmetric(horizontal: 6),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(_unsorted ? 'Карта появится в списке неотсортированных' : ('Карта будет сразу добавлена в категорию ' + catName), style: black16, textAlign: TextAlign.center,),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFFACC),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0.5, 1), blurRadius: 2.0)]
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 ),
-                SizedBox(height: 6,),
-                Divider(height: 6, thickness: 2,),
+                 */
                 SizedBox(height: 6),
                 Form(
                   autovalidateMode: AutovalidateMode.always, child: contentBuilder(),
                 ),
+                SizedBox(height: 6),
               ],
             ),
           ),

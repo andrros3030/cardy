@@ -123,6 +123,7 @@ class localDB {
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
         'crd.PI_ORDER as CORDER, '
+        'crd.V_COMMENT as CNOTE, '
         'crd.B_IMAGE_FRONT as frontImage, '
         'crd.B_IMAGE_BACK as backImage '    //TODO: остальные данные карты
         'from T_CARD crd JOIN '
@@ -150,6 +151,7 @@ class localDB {
         'id': _data[i]['CAD'],
         'access': _data[i]['PRIORITY'],
         'name': _data[i]['CNAME'],
+        'note': _data[i]['CNOTE'],
         'frontImage':_data[i]['frontImage'].toString().length>4?base64Decode(_data[i]['frontImage']):null,
         'backImage':_data[i]['backImage'].toString().length>4?base64Decode(_data[i]['backImage']):null,
         'order': _data[i]['CORDER'],
@@ -251,5 +253,11 @@ class localDB {
       await db.rawUpdate('UPDATE T_ACCESS SET FK_CATEGORY = NULL, IT_CHANGE = ? WHERE FK_CATEGORY = ?', [timeStamp(), catID]);
     }
     catch(e){}
+  }
+
+  //Сохранение заметки для определенной карты
+  saveNote({@required String cardID, @required String noteText})async{
+    Database db = await newDB;
+    await db.rawUpdate('UPDATE T_CARD SET V_COMMENT = ?, IT_CHANGE = ?, IV_USER = ? WHERE PK_ID = ? AND IL_DEL = 0',[noteText, timeStamp(), accountGuid, cardID]);
   }
 }

@@ -1,4 +1,5 @@
 import "dart:io";
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -29,18 +30,20 @@ Future<File> cropImage(File _cur)async{
 
 class showFullImage extends StatefulWidget{
   File image;
-  showFullImage(this.image);
+  Uint8List imageData;
+  bool canEdit;
+  showFullImage(this.image, {this.canEdit = false, this.imageData});
   @override
-  createState() => new _showImage(image,);
+  createState() => new _showImage(image, canEdit, imageData);
 }
 
 class _showImage extends State<showFullImage>{
-  File image; //изображение открытое пользователем, возможно можно удалить
-  _showImage(this.image);
-  PageController _view; //отвечает за перелистывание изображения
+  File image;
+  bool canEdit;
+  Uint8List imageData;
+  _showImage(this.image, this.canEdit, this.imageData);
 
   Widget build(BuildContext context){
-    //эта штука исключена из мвп, но тут осталась кнопка "поделится" и ее плагин я не удалял
     Widget _buttonBar = Container(
       color: primaryLight.withOpacity(0.5),
       width: MediaQuery.of(context).size.width,
@@ -52,7 +55,7 @@ class _showImage extends State<showFullImage>{
     return WillPopScope(
       onWillPop: () async {Navigator.pop(context, image); return false;},
       child: Scaffold(
-        appBar:appBarUsual(context, MediaQuery.of(context).size.width, trailing: GestureDetector(
+        appBar:appBarUsual(context, MediaQuery.of(context).size.width, trailing: canEdit?GestureDetector(
           child: Container(
             width: 40,
             height: 40,
@@ -65,16 +68,18 @@ class _showImage extends State<showFullImage>{
               setState(() {});
             }
           },
-        ), onBack: (){Navigator.pop(context, image);}),
+        ):null, onBack: (){Navigator.pop(context, image);}),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
               Container(
-                child: PhotoView(imageProvider: FileImage(image),),
+                child: PhotoView(
+                  imageProvider: image==null?MemoryImage(imageData):FileImage(image),
+                ),
                 height: MediaQuery.of(context).size.height,width: MediaQuery.of(context).size.width,),
-              Positioned(child: _buttonBar, bottom: 0,)
+              canEdit?Positioned(child: _buttonBar, bottom: 0,):SizedBox()
             ],
           ),
         ),
