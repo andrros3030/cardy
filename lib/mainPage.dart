@@ -22,9 +22,33 @@ class _mainPage extends State<mainPage> {
   bool _loading = true;
   double _width;
   String _currentState = '';
+  String _activeCategory = ''; // тут храним ID категории, которую мы перемещаем
   String _activeZone = ''; // тут храним ID категории или промежуточного пространства, куда будет перетягиваться карта, для того, чтобы подсветить это место
   String _activeCard = ''; // тут храним ID карты, которую мы в данный момент перетягиваем
+  List<String> _cardPlaceZones = [];
   ScrollController _scrollController = new ScrollController();
+
+  reorderCard({@required mas, @required data, @required index})async{
+    mas.removeWhere((element) => element['id']==data);
+    int newI = index~/2;
+    if (newI >= mas.length)
+      newI-=1;
+    if (index == 4)
+      newI-=1;
+    await localDB.db.reorderItems(cardsToUpdate: List.generate(mas.length+1, (di) {
+      if (di<newI)
+        return {'order': di, 'id': mas.removeAt(0)['id']};
+      else if (di==newI)
+        return {'order': di, 'id':data};
+      else
+        return {'order': di, 'id': mas.removeAt(0)['id']};
+    }));
+    setState(() {
+      _loading = true;
+      _activeZone = '';
+      _activeCard = '';
+    });
+  }
 
   Widget dragPlaceTarget({@required mas, @required index, @required id, Function onAccept}){
     bool _movingAround = _activeCard.length>0;
@@ -39,25 +63,7 @@ class _mainPage extends State<mainPage> {
           color: _primary?getColorForTile(10):Colors.transparent,
         );},
       onAccept:onAccept==null? (String data) async{
-        mas.removeWhere((element) => element['id']==data);
-        int newI = index~/2;
-        if (newI >= mas.length)
-          newI-=1;
-        if (index == 4)
-          newI-=1;
-
-        await localDB.db.reorderItems(cardsToUpdate: List.generate(mas.length+1, (di) {
-          if (di<newI)
-            return {'order': di, 'id': mas.removeAt(0)['id']};
-          else if (di==newI)
-            return {'order': di, 'id':data};
-          else
-            return {'order': di, 'id': mas.removeAt(0)['id']};
-        }));
-        setState(() {
-          _loading = true;
-          _activeZone = '';
-        });
+        reorderCard(mas: mas, data: data, index: index);
       }:onAccept,
       onMove: (data){
         if (!_primary)
@@ -293,13 +299,18 @@ class _mainPage extends State<mainPage> {
           });
         },
         onDraggableCanceled: (v, o){
+          if (_activeZone.length>0){
+            debugPrint('maybeDrag');
+          }
           setState(() {
             _activeCard = '';
+            _activeZone = '';
           });
         },
         onDragCompleted: (){
           setState(() {
             _activeCard = '';
+            _activeZone = '';
           });
         },
         data: _id,
@@ -307,11 +318,13 @@ class _mainPage extends State<mainPage> {
         child: _item,
       ),
       onPointerMove: (PointerMoveEvent event) {
-        if (event.position.dy > MediaQuery.of(context).size.height) {
-          _scrollController.animateTo(_scrollController.offset + cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
-        }
-        else if (event.position.dy < 40){
-          _scrollController.animateTo(_scrollController.offset - cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
+        if(_activeCard == _id){
+          if (event.position.dy > MediaQuery.of(context).size.height) {
+            _scrollController.animateTo(_scrollController.offset + cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
+          }
+          else if (event.position.dy < 40){
+            _scrollController.animateTo(_scrollController.offset - cardHeight, duration: Duration(milliseconds: 200), curve: Curves.ease);
+          }
         }
       },
     );
@@ -330,7 +343,7 @@ class _mainPage extends State<mainPage> {
   Widget categoriesColumn(){
     List _cats = List.from(categories);
     _cats.sort((a, b){
-      return a['order']<b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
+      return a['order']<b['order']?-1:1;
     });
     List<Widget> tiles = List.generate(_cats.length, (index) {
       return ReorderableWidget(
@@ -386,21 +399,27 @@ class _mainPage extends State<mainPage> {
       return Container();
     List _cards = List.from(cards[key]);
     _cards.sort((a, b){
-      return a['order']<b['order']?-1:1; //TODO: протестировать на корректном наборе данных, возможно поменять местами? может напрямую вычитать?
+      return a['order']<b['order']?-1:1;
     });
     int _cur = _activeCard.length>0?(_cards.indexWhere((element) => element['id']==_activeCard)*2 + 1):-1;
+    _cardPlaceZones = [];
     List<Widget> tiles = List.generate(_cards.length*2 + 1, (index) {
+      String _id;
+      Widget res;
       if (index%2 == 1) {
-        String _id = _activeCard == _cards[index ~/ 2]['id']? 'activeCard':'';
-        return _activeCard == _cards[index ~/ 2]['id'] ? dragPlaceTarget(mas: _cards, index: index, id: _id, onAccept: (data){return 0;}): cardTile(_cards[index ~/ 2]); // это виджет с картой, его можно будет перетянуть
+        _id = _activeCard == _cards[index ~/ 2]['id']? 'activeCard':_cards[index ~/ 2]['id'];
+        res = _activeCard == _cards[index ~/ 2]['id'] ? dragPlaceTarget(mas: _cards, index: index, id: index==_cards.length*2-1?'LastID':_id,onAccept: (data){return 0;}): cardTile(_cards[index ~/ 2]); // это виджет с картой, его можно будет перетянуть
       }
       else{
         if (index == _cur - 1 || index == _cur + 1)
           return SizedBox();
-        String _id = index==0?'firstID':index==_cards.length*2?'LastID':(_cards[index~/2]['id']+_cards[index~/2 - 1]['id']);
-        return dragPlaceTarget(mas: _cards,index: index, id: _id);
+        _id = index==0?'firstID':index==_cards.length*2?'LastID':(_cards[index~/2]['id']+_cards[index~/2 - 1]['id']);
+        res = dragPlaceTarget(mas: _cards, index: index, id: _id);
       } // это виджет который является "площадью" между двумя картами или сверху и снизу от карт
+      _cardPlaceZones.add(_id);
+      return res;
     });
+    //debugPrint('all: ' + _cardPlaceZones.toString());
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 6),
       child: Column(
