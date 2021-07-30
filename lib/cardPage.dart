@@ -503,20 +503,13 @@ class _newCard extends State<newCard> {
         alignment: Alignment.topCenter,
         child: pictureTaker(),
       );
-    if (images == 1)
-      return Wrap(
+    return Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         alignment: WrapAlignment.center,
         runSpacing: 6.0,
         children: [
           _imageData[0]!=null ? pictureBuilder(0) : pictureTaker(),
-          _imageData[0]!=null ? pictureTaker() : pictureBuilder(1),
-        ],
-      );
-    return Wrap(
-        children: [
-          pictureBuilder(0),
-          pictureBuilder(1),
+          _imageData[1]!=null ? pictureBuilder(1): pictureTaker(),
         ]
     );
   }
@@ -574,7 +567,7 @@ class _newCard extends State<newCard> {
               padding: EdgeInsets.symmetric(vertical: 6),
               child: imageRow(),
             ),
-            hintBox(' Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\n После выбора изображения обрежьте его под формат карты '),
+            hintBox(' Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\n После выбора изображения обрежьте его под формат карты'),
             Container(
               width: _width,
               alignment: Alignment.center,
@@ -630,16 +623,9 @@ class _newCard extends State<newCard> {
             Container(
               child: defButton(
                 onPressed: (_cardName.length==0 && images==0)?null:(){
-                  if (_cardName.length==0){
-                    setState((){
-                      _actionIndex+=2;
-                    });
-                  }
-                  else{
                     setState((){
                       _actionIndex+=1;
                     });
-                  }
                 },
                 child: Text((_cardName.length==0 && images>0)?'Пропустить':'Далее', style: white16,),
               ),
@@ -651,21 +637,25 @@ class _newCard extends State<newCard> {
         return Column(
           children: [
             hintBox('Тут будет процесс добавления nfc метки'),
-            Container(
-              child: defButton(
-                onPressed: _loadingNFC?null:(){
-                  if (_nfcData.length==0){
-                    _loadNFC();
-                  }
-                  else{
-                    setState(() {
-                      _actionIndex+=1;
-                    });
-                  }
-                },
-                child: _loadingNFC?CircularProgressIndicator():Text(_nfcData.length==0?'Скопировать NFC-метку':'Добавить карту', style: white16),
-              ),
+            defButton(
+              onPressed: _loadingNFC?null:(){
+                if (_nfcData.length==0){
+                  _loadNFC();
+                }
+                else{
+                  setState(() {
+                    _actionIndex+=1;
+                  });
+                }
+              },
+              child: _loadingNFC?CircularProgressIndicator():Text(_nfcData.length==0?'Скопировать NFC-метку':'Добавить карту', style: white16),
             ),
+            SizedBox(height: 12,),
+            images!=0?defButton(onPressed: (){
+              setState(() {
+                _actionIndex+=1;
+              });
+            }, color: primaryLight, child: Text('Пропустить', style: white16,)):SizedBox(),
           ],
         );
         break;
