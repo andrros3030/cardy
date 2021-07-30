@@ -85,14 +85,15 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         <node id="n0::n1">
           <data key="d6">
             <y:GenericNode configuration="com.yworks.entityRelationship.big_entity">
-              <y:Geometry height="182.69149695999997" width="194.81907199999995" x="260.7311516876798" y="-57.90544929792031"/>
+              <y:Geometry height="182.69149695999997" width="194.81907199999995" x="266.4249280000001" y="-57.90544929792031"/>
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="67.3515625" x="63.73375475" xml:space="preserve" y="4.0">T_ACCESS</y:NodeLabel>
-              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="106.908203125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="85.33984375" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
+              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="121.609375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="93.349609375" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
 PI_PRIORITY
 FK_ACCOUNT
 FK_CARD
+FK_CATEGORY
 IL_DEL
 IV_USER
 IT_CHANGE
@@ -133,11 +134,13 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
               <y:Fill color="#E8EEF7" color2="#B7C9E3" transparent="false"/>
               <y:BorderStyle color="#000000" type="line" width="1.0"/>
               <y:NodeLabel alignment="center" autoSizePolicy="content" backgroundColor="#B7C9E3" configuration="com.yworks.entityRelationship.label.name" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasLineColor="false" height="18.701171875" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="52.005859375" x="71.4066063125" xml:space="preserve" y="4.0">T_CARD</y:NodeLabel>
-              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="121.609375" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="93.349609375" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
+              <y:NodeLabel alignment="left" autoSizePolicy="content" configuration="com.yworks.entityRelationship.label.attributes" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="151.01171875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="top" visible="true" width="105.349609375" x="2.0" xml:space="preserve" y="30.701171875">PK_ID
 PV_NAME
 PI_ORDER
 FK_CATEGORY
 V_COMMENT
+B_IMAGE_FRONT
+B_IMAGE_BACK
 IL_DEL
 IV_USER
 IT_CHANGE
@@ -225,10 +228,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
     <edge id="e0" source="n0" target="n0::n1">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="-320.0508587018403" sy="-263.83408964657826" tx="-97.40700632775349" ty="-6.446204011171744">
-            <y:Point x="163.15999999999988" y="-87.51777136637389"/>
-            <y:Point x="244.0559999999998" y="-22.517771366373893"/>
-          </y:Path>
+          <y:Path sx="-212.99485870184049" sy="-198.83408964657826" tx="-97.40700632775349" ty="-6.446204011171744"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
           <y:BendStyle smoothed="false"/>
@@ -251,7 +251,7 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
     <edge id="n0::e1" source="n0::n3" target="n0::n1">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="-0.12368782184069005" sy="-52.215270548453304" tx="-35.80735435434633" ty="-8.743632515413069">
+          <y:Path sx="-0.12368782184069005" sy="-52.215270548453304" tx="-36.149442404661045" ty="-8.743632515413069">
             <y:Point x="481.244" y="124.13502863362612"/>
             <y:Point x="481.244" y="24.6966666666666"/>
           </y:Path>
@@ -300,14 +300,26 @@ IT_CHANGE<y:LabelModel><y:ErdAttributesNodeLabelModel/></y:LabelModel><y:ModelPa
         </y:PolyLineEdge>
       </data>
     </edge>
-    <edge id="n0::e4" source="n0::n3" target="n0::n2">
+    <edge id="e2" source="n0::n1" target="n0">
       <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="3.770304630989358" sy="-8.382314276419066" tx="-88.79156706712376" ty="-52.19877203340019">
-            <y:Point x="819.511305660377" y="167.96798490566033"/>
-            <y:Point x="819.511305660377" y="154.7448603773584"/>
-            <y:Point x="819.511305660377" y="-84.92427169811322"/>
+          <y:Path sx="0.0" sy="0.0" tx="54.76453752457462" ty="-266.4575258273742">
+            <y:Point x="511.8153962264149" y="33.44029918207967"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="n0::e4" source="n0::n1" target="n0::n2">
+      <data key="d9"/>
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="-40.55189796226426" sy="6.8418894971656385" tx="8.883934819668866" ty="-58.707028637173735">
+            <y:Point x="501.4848301886791" y="40.28218867924531"/>
+            <y:Point x="501.4848301886791" y="-83.68460377358488"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
