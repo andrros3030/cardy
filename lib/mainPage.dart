@@ -139,7 +139,6 @@ class _mainPage extends State<mainPage> {
   Widget categoryTile(Map _data){
     bool _primary = _activeZone == _data['id'];
     bool _dragged = _activeCategory == _data['id'];
-    debugPrint('_dragged: '+_activeCategory+' ' + _data['id']);
     Widget _item = GestureDetector(
       child: Card(
         elevation: 4.0,
@@ -305,7 +304,6 @@ class _mainPage extends State<mainPage> {
           return _itemFull;
         },
         onAccept: (String data) async{
-          debugPrint('sent to category');
           await localDB.db.moveCardToCategory(card_id: data, category_id: _data['id'], user: accountGuid);
           setState(() {_loading = true;_activeZone = '';});
         },
@@ -483,7 +481,6 @@ class _mainPage extends State<mainPage> {
       String _id;
       if (index%2 == 1) {
         _id = _activeCategory == _cats[index ~/ 2]['id']? 'activeCategory':_cats[index ~/ 2]['id'];
-        debugPrint('id: ' + _id + ' realData: '  +_cats[index~/2]['id']);
         return _activeCategory == _cats[index ~/ 2]['id'] ? dragCategoryTarget(mas: _cats, index: index, id: index==_cats.length*2-1?'LastID':_id,onAccept: (data){return 0;}): categoryTile(_cats[index~/2]); // это виджет с картой, его можно будет перетянуть
       }
       else{
