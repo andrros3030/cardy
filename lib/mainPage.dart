@@ -1,4 +1,5 @@
 import 'package:card_app_bsk/cardPage.dart';
+import 'package:card_app_bsk/createCategoryScreen.dart';
 import 'package:card_app_bsk/userPage.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
@@ -500,10 +501,7 @@ class _mainPage extends State<mainPage> {
           ),
           GestureDetector(
             onTap: ()async{
-              await localDB.db.createCategory(cardName: 'super name', creator_id: accountGuid);
-              setState(() {
-                _loading = true;
-              });
+              await Navigator.push(context, MaterialPageRoute(builder: (context)=>createCategory()));
             },
             child: Container(
               height: cardHeight,

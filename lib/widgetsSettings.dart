@@ -178,16 +178,24 @@ Widget appBarUsual(BuildContext context, double _width, {Widget child, Function 
   );
 }
 
-Widget defButton({@required Function onPressed, Widget child, Color color, shape}){
-  return MaterialButton(
-    minWidth: 240,
-    onPressed: onPressed,
-    child: child,
-    color: color==null?primaryDark:color,
-    shape: shape==null?RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)):shape,
-    elevation: 8.0,
-    disabledElevation: 8.0,
-    disabledColor: disabledGrey,
+Widget defButton({@required Function onPressed, Widget child, Color color}){
+  return AnimatedContainer(
+    duration: Duration(milliseconds: 800),
+    decoration: BoxDecoration(
+      color: onPressed==null?disabledGrey:color==null?primaryDark:color,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [BoxShadow(color: disabledGrey, offset: Offset(1, 1), blurRadius: 1.0, spreadRadius: 1.0)],
+    ),
+    child: MaterialButton(
+      minWidth: 240,
+      onPressed: onPressed,
+      child: child,
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      disabledColor: Colors.transparent,
+      elevation: 0.0,
+      disabledElevation: 0.0,
+    ),
   );
 }
 
@@ -212,3 +220,29 @@ Widget supportEmailLabel(BuildContext context){
     },
   );
 }
+Map<String,IconData> preLoadedIcons = {
+  'comp':Icons.keyboard,
+  'work':Icons.work,
+  'pass':Icons.vpn_key,
+  'gift':Icons.card_giftcard,
+  'bons':Icons.card_membership,
+  'crdt':Icons.credit_card,
+  'memo':Icons.sd_card,
+  'mark':Icons.turned_in,
+  'star':Icons.star,
+  'fvrt':Icons.favorite,
+};
+Map<String,Color> preLoadedColors = {
+  '0xff93d9c4':Color(0xff93d9c4),
+  '0xffecd4d4':Color(0xffecd4d4),
+  '0xffbcdcdf':Color(0xffbcdcdf),
+  '0xffdfd3ea':Color(0xffdfd3ea),
+  '0xffede6d2':Color(0xffede6d2),
+  '0xfffffacc':Color(0xfffffacc),
+  '0xfffee600':Color(0xfffee600),
+  '0xff049fff':Color(0xff049fff),
+  '0xff8bc34a':Color(0xff8bc34a),
+  '0xff1957c7':Color(0xff1957c7),
+  '0xff4caf50':Color(0xff4caf50),
+  '0xffffffff':Color(0xffffffff),
+};
