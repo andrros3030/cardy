@@ -60,10 +60,11 @@ class _createCategoryPage extends State<createCategory> {
   }
 
   Widget _preView(){
-    List _icons = List.from(preLoadedIcons.keys);
-    List _colors = List.from(preLoadedColors.keys);
+    //List _icons = List.from(preLoadedIcons.keys);
+    //List _colors = List.from(preLoadedColors.keys);
     return Container(
       width: _width,
+      /*
       child: Column(
         children: [
           Text('Подберите подходящее оформление для категории', style: def16, textAlign: TextAlign.center,),
@@ -116,6 +117,7 @@ class _createCategoryPage extends State<createCategory> {
           ),
         ],
       ),
+       */
     );
   }
 

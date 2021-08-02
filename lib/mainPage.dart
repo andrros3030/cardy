@@ -143,49 +143,58 @@ class _mainPage extends State<mainPage> {
     Widget _item = GestureDetector(
       child: Card(
         elevation: 4.0,
-        child: Container(
-          width: _dragged?(_width-48):_width,
-          height: cardExtended,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Stack(
-            children: [
-              Center(child: Text(_data['name'], style: def24,),),
-              Align(
-                alignment: Alignment.topRight,
-                child: counter(_data['id']),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Icon(Icons.delete, color: Colors.red, size: 30,),
-                    //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.all(4),
-                    width: 40,
-                    height: 40,
+        child: Stack(
+          children: [
+            _data['image']==null?SizedBox():Container(
+              width: 300,
+              height: cardExtended,
+              child: Image.memory(_data['image'],fit: BoxFit.cover),
+            ),
+            Container(
+              width: _dragged?(_width-48):300,
+              height: cardExtended,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Stack(
+                children: [
+                  Center(child: Text(_data['name'], style: def24,),),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: counter(_data['id']),
                   ),
-                  onTap: ()async {
-                    bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                      title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
-                      children: [
-                        TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
-                        TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
-                      ],
-                    );});
-                    if (res == null) res = false;
-                    if (res){
-                      await localDB.db.removeCategory(_data['id']);
-                      setState(() {
-                        _loading = true;
-                      });
-                    }
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                        //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                        padding: EdgeInsets.all(4),
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: ()async {
+                        bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          children: [
+                            TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                            TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                          ],
+                        );});
+                        if (res == null) res = false;
+                        if (res){
+                          await localDB.db.removeCategory(_data['id']);
+                          setState(() {
+                            _loading = true;
+                          });
+                        }
 
-                  },
-                ),
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       onTap: (){
@@ -197,48 +206,58 @@ class _mainPage extends State<mainPage> {
       child: Card(
         elevation: 16.0,
         color: getColorForTile(10),
-        child: Container(
-          height: cardExtended,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Stack(
-            children: [
-              Center(child: Text(_data['name'], style: def24,),),
-              Align(
-                alignment: Alignment.topRight,
-                child: counter(_data['id']),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Icon(Icons.delete, color: Colors.red, size: 30,),
-                    //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.all(4),
-                    width: 40,
-                    height: 40,
+        child: Stack(
+          children: [
+            _data['image']==null?SizedBox():Opacity(opacity: 0.4, child: Container(
+              width: 300,
+              height: cardExtended,
+              child: Image.memory(_data['image'],fit: BoxFit.cover),
+            ),),
+            Container(
+              height: cardExtended,
+              width: 300,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Stack(
+                children: [
+                  Center(child: Text(_data['name'], style: def24,),),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: counter(_data['id']),
                   ),
-                  onTap: ()async {
-                    bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                      title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
-                      children: [
-                        TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
-                        TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
-                      ],
-                    );});
-                    if (res == null) res = false;
-                    if (res){
-                      await localDB.db.removeCategory(_data['id']);
-                      setState(() {
-                        _loading = true;
-                      });
-                    }
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                        //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                        padding: EdgeInsets.all(4),
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: ()async {
+                        bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          children: [
+                            TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                            TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                          ],
+                        );});
+                        if (res == null) res = false;
+                        if (res){
+                          await localDB.db.removeCategory(_data['id']);
+                          setState(() {
+                            _loading = true;
+                          });
+                        }
 
-                  },
-                ),
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       onTap: (){
@@ -248,49 +267,58 @@ class _mainPage extends State<mainPage> {
       },):GestureDetector(
       child: Card(
         elevation: 4.0,
-        child: Container(
-          width: _dragged?(_width-48):_width,
-          height: cardExtended,
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Stack(
-            children: [
-              Center(child: Text(_data['name'], style: def24,),),
-              Align(
-                alignment: Alignment.topRight,
-                child: counter(_data['id']),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: GestureDetector(
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Icon(Icons.delete, color: Colors.red, size: 30,),
-                    //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.all(4),
-                    width: 40,
-                    height: 40,
+        child: Stack(
+          children: [
+            _data['image']==null?SizedBox():Container(
+              width: 300,
+              height: cardExtended,
+              child: Image.memory(_data['image'],fit: BoxFit.cover),
+            ),
+            Container(
+              width: _dragged?(_width-48):300,
+              height: cardExtended,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Stack(
+                children: [
+                  Center(child: Text(_data['name'], style: def24,),),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: counter(_data['id']),
                   ),
-                  onTap: ()async {
-                    bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                      title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
-                      children: [
-                        TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
-                        TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
-                      ],
-                    );});
-                    if (res == null) res = false;
-                    if (res){
-                      await localDB.db.removeCategory(_data['id']);
-                      setState(() {
-                        _loading = true;
-                      });
-                    }
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                        //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                        padding: EdgeInsets.all(4),
+                        width: 40,
+                        height: 40,
+                      ),
+                      onTap: ()async {
+                        bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          children: [
+                            TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                            TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                          ],
+                        );});
+                        if (res == null) res = false;
+                        if (res){
+                          await localDB.db.removeCategory(_data['id']);
+                          setState(() {
+                            _loading = true;
+                          });
+                        }
 
-                  },
-                ),
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       onTap: (){
@@ -318,9 +346,7 @@ class _mainPage extends State<mainPage> {
           setState(() {
             _activeZone = '';
           });
-        },
-
-      ), feedback: _itemFull, onDragStarted: (){
+        },), feedback: _itemFull, onDragStarted: (){
         setState(() {
           _activeCategory = _data['id'];
           _activeZone = 'activeCategory';

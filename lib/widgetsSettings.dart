@@ -220,6 +220,7 @@ Widget supportEmailLabel(BuildContext context){
     },
   );
 }
+/*
 Map<String,IconData> preLoadedIcons = {
   'comp':Icons.keyboard,
   'work':Icons.work,
@@ -246,3 +247,4 @@ Map<String,Color> preLoadedColors = {
   '0xff4caf50':Color(0xff4caf50),
   '0xffffffff':Color(0xffffffff),
 };
+ */

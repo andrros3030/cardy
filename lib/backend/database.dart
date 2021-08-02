@@ -117,9 +117,7 @@ class localDB {
         'ctg.PK_ID as ctgID, '
         'ctg.PV_NAME as ctgName, '
         'ctg.PI_ORDER as ctgORDER, '
-        'ctg.V_ICON as ctgIcon, '
-        'ctg.V_ICON_COLOR as ctgIconColor, '
-        'ctg.V_BACKGROUND_COLOR as ctgBG, '
+        'img.PB_IMAGE as ctgImage, '
         'crd.PK_ID as CAD, '
         'crd.PV_NAME as CNAME, '
         'crd.PI_ORDER as CORDER, '
@@ -128,21 +126,21 @@ class localDB {
         'crd.B_IMAGE_BACK as backImage '    //TODO: остальные данные карты
         'from T_CARD crd JOIN '
         'T_ACCESS access on crd.PK_ID = access.FK_CARD LEFT JOIN '
-        'T_CATEGORY ctg on access.FK_CATEGORY = ctg.pk_id JOIN '
+        'T_CATEGORY ctg on access.FK_CATEGORY = ctg.pk_id LEFT JOIN '
+        'T_D_IMAGES img on ctg.FK_IMAGE = img.PK_ID JOIN '
         'T_ACCOUNT acc ON access.FK_ACCOUNT = acc.PK_ID '
-        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND access.IL_DEL = 0 "
+        "WHERE acc.PK_ID = ? AND acc.IL_DEL = 0 AND crd.IL_DEL = 0 AND (ctg.IL_DEL = 0 or ctg.il_del is NULL) AND (img.IL_DEL = 0 or img.il_del is NULL) AND access.IL_DEL = 0 "
         "order BY ctg.pi_order asc", [acc_id]);
     List _emptyCategories = await db.rawQuery('SELECT '
         'ctg.PK_ID as ctgID, '
         'ctg.PV_NAME as ctgName, '
         'ctg.PI_ORDER as ctgORDER, '
-        'ctg.V_ICON as ctgIcon, '
-        'ctg.V_ICON_COLOR as ctgIconColor, '
-        'ctg.V_BACKGROUND_COLOR as ctgBG '
-        'from T_CATEGORY ctg '
+        'img.PB_IMAGE as ctgImage '
+        'from T_CATEGORY ctg LEFT JOIN '
+        'T_D_IMAGES img on ctg.FK_IMAGE = img.PK_ID '
         'where ctg.FK_ACCOUNT = ? '
         'and (SELECT count(crd.PK_ID) FROM T_CARD crd JOIN T_ACCESS access on crd.PK_ID = access.FK_CARD WHERE FK_CATEGORY = ctg.PK_ID and crd.IL_DEL = 0 AND access.IL_DEL = 0 AND access.FK_ACCOUNT = ?) = 0 '
-        'and ctg.IL_DEL = 0', [acc_id, acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
+        'and ctg.IL_DEL = 0 AND (img.IL_DEL = 0 or img.il_del is NULL)', [acc_id, acc_id]); //такие категории, которые принадлежат этому пользователю, но у которых ещё нету ни одной карты (не попали в выборку сверху)
     Map<String, List> _cards = {};
     List<Map> _categories = [];
     for (int i = 0; i<_data.length; i++){
@@ -164,9 +162,7 @@ class localDB {
             'id': _data[i]['ctgID'],
             'name': _data[i]['ctgName'],
             'order': _data[i]['ctgORDER'],
-            'icon': _data[i]['ctgIcon'],
-            'iconColor': _data[i]['ctgIconColor'],
-            'backgroundColor': _data[i]['ctgBG'],
+            'image': _data[i]['ctgImage'].toString().length>4?base64Decode(_data[i]['ctgImage']):null,
           });
         _cards[_key] = [_crd];
       }
@@ -176,9 +172,7 @@ class localDB {
         'id': _emptyCategories[i]['ctgID'],
         'name': _emptyCategories[i]['ctgName'],
         'order': _emptyCategories[i]['ctgORDER'],
-        'icon': _emptyCategories[i]['ctgIcon'],
-        'iconColor': _emptyCategories[i]['ctgIconColor'],
-        'backgroundColor': _emptyCategories[i]['ctgBG'],
+        'image': _emptyCategories[i]['ctgImage'].toString().length>4?base64Decode(_emptyCategories[i]['ctgImage']):null,
       });
     }
     return {'cards':_cards, 'categories':_categories};
