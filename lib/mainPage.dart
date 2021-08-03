@@ -527,7 +527,9 @@ class _mainPage extends State<mainPage> {
           ),
           GestureDetector(
             onTap: ()async{
-              await Navigator.push(context, MaterialPageRoute(builder: (context)=>createCategory()));
+              bool res = await Navigator.push(context, MaterialPageRoute(builder: (context)=>createCategory()));
+              if (res == null) res=false;
+              if (res) setState(() {_loading = true;});
             },
             child: Container(
               height: cardHeight,

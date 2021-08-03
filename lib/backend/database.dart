@@ -204,11 +204,13 @@ class localDB {
       }
     catch(e){}
   }
-  createCategory({@required String creator_id, @required String cardName}) async {
+  createCategory({@required String creator_id, @required String cardName, String imageID}) async {
     Database db = await newDB;
-    await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), cardName, creator_id, creator_id, timeStamp()]);
-    getUserCardsNCategories(acc_id: creator_id); //debug tool
-}//TODO: дополнить функцию необходимыми параметрами
+    if (imageID==null)
+      await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?)', [guid(), cardName, creator_id, creator_id, timeStamp()]);
+    else
+      await db.rawInsert('INSERT INTO T_CATEGORY(PK_ID, PV_NAME, FK_ACCOUNT, FK_IMAGE, IV_USER, IT_CHANGE) VALUES(?, ?, ?, ?, ?, ?)', [guid(), cardName, creator_id, imageID, creator_id, timeStamp()]);
+  }
   moveCardToCategory({@required String card_id, @required String category_id, @required String user})async{
     Database db = await newDB;
     await db.rawUpdate("UPDATE T_ACCESS SET FK_CATEGORY = ?, IV_USER = ?, IT_CHANGE = ? WHERE FK_CARD = ? AND FK_ACCOUNT = ? AND IL_DEL = 0", [category_id, user, timeStamp(), card_id, user]);
@@ -253,5 +255,24 @@ class localDB {
   saveNote({@required String cardID, @required String noteText})async{
     Database db = await newDB;
     await db.rawUpdate('UPDATE T_CARD SET V_COMMENT = ?, IT_CHANGE = ?, IV_USER = ? WHERE PK_ID = ? AND IL_DEL = 0',[noteText, timeStamp(), accountGuid, cardID]);
+  }
+
+  Future<List> categoriesPresets()async{
+    Database db = await newDB;
+    List _res = await db.rawQuery('SELECT '
+        'PK_ID as id, '
+        'PV_NAME as name, '
+        'PB_IMAGE as image '
+        'from T_D_IMAGES where IL_DEL = 0');
+    List res = [];
+    for (Map el in _res){
+      Map _tmp = {
+        'id':el['id'],
+        'name':el['name'],
+        'image':base64Decode(el['image'])
+      };
+      res.add(_tmp);
+    }
+    return res;
   }
 }
