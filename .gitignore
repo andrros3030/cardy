@@ -44,3 +44,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+!.idea/
+.idea/vcs.xml
+.idea/modules.xml
+.idea/misc.xml
+.idea/libraries/KotlinJavaRuntime.xml
+.idea/libraries/Flutter_Plugins.xml
+.idea/libraries/Dart_SDK.xml
+.idea/libraries/Dart_Packages.xml
+.idea/runConfigurations/main_dart.xml
+.idea/codeStyles/Project.xml
