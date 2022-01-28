@@ -315,7 +315,7 @@ class _newCard extends State<newCard> {
     }
     catch(e){
       Navigator.pop(context);
-      Fluttertoast.showToast(msg: 'Ошибка доступа к камере',); //TODO:
+      Fluttertoast.showToast(msg: 'Ошибка доступа к камере',); //TODO: привести к дизайну
       return null;
     }
   }
@@ -543,7 +543,7 @@ class _newCard extends State<newCard> {
               Icon(Icons.info_outline, color: Color(0xFFD7B9F3),),
               SizedBox(width: 8,),
               Flexible(
-                child: Text(hint),
+                child: Opacity(child: Text(hint, style: black16,), opacity: 0.6,),
               ),
             ],
           ),
@@ -551,86 +551,104 @@ class _newCard extends State<newCard> {
       );
   }
 
+  Widget actionButton({@required String text, @required Function onPressed, @required Color color}){
+    return Container(
+      width: _width,
+      alignment: Alignment.center,
+      child: defButton(
+        onPressed: onPressed,
+        color: color,
+        child: Text(text, style: white16,),
+      ),
+    );
+  } //TODO: merge with defButton
+
   Widget contentBuilder(){
     switch (_actionIndex){
       case 0:
-        return Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                  "Добавьте изображение карты, если на ней есть штрихкод", style: black16, textAlign: TextAlign.center,),
-            ),
-            Container(
-              width: _width,
-              //  height: (cardExtended+40)*2,
-              padding: EdgeInsets.symmetric(vertical: 6),
-              child: imageRow(),
-            ),
-            hintBox(' Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\n После выбора изображения обрежьте его под формат карты'),
-            Container(
-              width: _width,
-              alignment: Alignment.center,
-              child: defButton(
-                onPressed: () {setState(() {
-                    _actionIndex+=1;
-                  });
-                },
-                color: primaryDark,
-                child: Text(images==0?'Пропустить':'Далее', style: white16,),
+        return Container(
+          height: MediaQuery.of(context).size.height-100,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 15,),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                    "Добавьте изображение карты, если на ней есть штрихкод", style: black16, textAlign: TextAlign.center,),
               ),
-            ),
-          ],
+              SizedBox(height: 15,),
+              Container(
+                width: _width,
+                //  height: (cardExtended+40)*2,
+                padding: EdgeInsets.symmetric(vertical: 6),
+                child: imageRow(),
+              ),
+              hintBox('Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\nПосле выбора изображения обрежьте его под формат карты.'),
+              Expanded(child: SizedBox(),),
+              actionButton(
+                text: images==0?'Пропустить':'Далее',
+                color: primaryDark,
+                onPressed: () {setState(() {
+                  _actionIndex+=1;
+                });
+                }
+              )
+            ],
+          ),
         );
         break;
       case 1:
-        return Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
+        return Container(
+          height: MediaQuery.of(context).size.height-100,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                height: 40,
                 padding: EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(border: Border.all(
-                    color: disabledGrey, width: 1
-                ), borderRadius: BorderRadius.circular(4)),
-                child: TextFormField(
-                  validator: (val){
-                    if (val.length>36)
-                      return 'Название карты не должно превышать 36 символов';
-                    return null;
-                  },
-                  initialValue: _cardName,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    labelText: "Название карты",
-                    labelStyle: grey16,
-                    contentPadding: EdgeInsets.zero,
-                    counterText: '',
-                    errorMaxLines: 3,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(border: Border.all(
+                      color: disabledGrey, width: 1
+                  ), borderRadius: BorderRadius.circular(4)),
+                  child: TextFormField(
+                    validator: (val){
+                      if (val.length>36)
+                        return 'Название карты не должно превышать 36 символов';
+                      return null;
+                    },
+                    initialValue: _cardName,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Название карты",
+                      hintStyle: grey16,
+                      errorMaxLines: 3,
+                    ),
+                    maxLines: 1,
+                    textInputAction: TextInputAction.done,
+                    style: black16,
+                    onChanged: (val){
+                      setState(() {
+                        _cardName = val;
+                      });
+                    },
                   ),
-                  maxLines: 1,
-                  textInputAction: TextInputAction.done,
-                  style: black16,
-                  onChanged: (val){
-                    setState(() {
-                      _cardName = val;
-                    });;
-                  },
                 ),
               ),
-            ),
-            hintBox('Карты с NFC без изображения необходимо назвать, чтобы они не потерялись!'),
-            Container(
-              child: defButton(
+              hintBox('Карты с NFC без изображения необходимо назвать, чтобы они не потерялись!'),
+              Expanded(child: SizedBox(),),
+              actionButton(
                 onPressed: (_cardName.length==0 && images==0)?null:(){
-                    setState((){
-                      _actionIndex+=1;
-                    });
+                  setState((){
+                    _actionIndex+=1;
+                  });
                 },
-                child: Text((_cardName.length==0 && images>0)?'Пропустить':'Далее', style: white16,),
+                text: (_cardName.length==0 && images>0)?'Пропустить':'Далее',
+                color: primaryDark
               ),
-            ),
-          ],
+            ],
+          ),
         );
         break;
       case 2:
@@ -735,7 +753,8 @@ class _newCard extends State<newCard> {
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: Container(
             color: Colors.white,
-            child: ListView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 /*
                 SizedBox(height: 6),

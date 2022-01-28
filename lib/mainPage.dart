@@ -27,7 +27,7 @@ class _mainPage extends State<mainPage> {
   String _activeCard = ''; // тут храним ID карты, которую мы в данный момент перетягиваем
   ScrollController _scrollController = new ScrollController();
 
-  // TODO: провести тест под опись с перетягиванием карты, проверить, что за флаг на index == 4
+  // TODO: провести тест с перетягиванием карты, проверить, что за флаг на index == 4
   reorderCard({@required mas, @required data, @required index})async{
     mas.removeWhere((element) => element['id']==data);
     int newI = index~/2;
@@ -156,7 +156,7 @@ class _mainPage extends State<mainPage> {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Stack(
                 children: [
-                  Center(child: Text(_data['name'], style: def24,),),
+                  _data['image']!=null?SizedBox():Center(child: Text(_data['name'], style: def24,),),
                   Align(
                     alignment: Alignment.topRight,
                     child: counter(_data['id']),
@@ -219,7 +219,7 @@ class _mainPage extends State<mainPage> {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Stack(
                 children: [
-                  Center(child: Text(_data['name'], style: def24,),),
+                  _data['image']!=null?SizedBox():Center(child: Text(_data['name'], style: def24,),),
                   Align(
                     alignment: Alignment.topRight,
                     child: counter(_data['id']),
@@ -280,7 +280,7 @@ class _mainPage extends State<mainPage> {
               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Stack(
                 children: [
-                  Center(child: Text(_data['name'], style: def24,),),
+                  _data['image']!=null?SizedBox():Center(child: Text(_data['name'], style: def24,),),
                   Align(
                     alignment: Alignment.topRight,
                     child: counter(_data['id']),
@@ -378,6 +378,7 @@ class _mainPage extends State<mainPage> {
     );
   }
   Widget cardTile(Map _data){
+    debugPrint(_data.toString());
     String _id = _data['id'];
     Widget _item = Hero(
       tag: _data['id'],
@@ -408,7 +409,7 @@ class _mainPage extends State<mainPage> {
                         width: _width*0.9,
                         child: Image.memory(_data['frontImage'],fit: BoxFit.cover),
                       ),
-                      Center(
+                      _data['frontImage']!=null?SizedBox():Center(
                         child: Text("Card: " + _id, style: def24,),
                       ),
                       Positioned(
