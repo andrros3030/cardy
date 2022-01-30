@@ -551,23 +551,10 @@ class _newCard extends State<newCard> {
       );
   }
 
-  Widget actionButton({@required String text, @required Function onPressed, @required Color color}){
-    return Container(
-      width: _width,
-      alignment: Alignment.center,
-      child: defButton(
-        onPressed: onPressed,
-        color: color,
-        child: Text(text, style: white16,),
-      ),
-    );
-  } //TODO: merge with defButton
-
   Widget contentBuilder(){
     switch (_actionIndex){
       case 0:
         return Container(
-          height: MediaQuery.of(context).size.height-100,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -580,20 +567,10 @@ class _newCard extends State<newCard> {
               SizedBox(height: 15,),
               Container(
                 width: _width,
-                //  height: (cardExtended+40)*2,
                 padding: EdgeInsets.symmetric(vertical: 6),
                 child: imageRow(),
               ),
               hintBox('Сделайте качественное изображение карты, чтобы штрихкод или номер легко читался.\nПосле выбора изображения обрежьте его под формат карты.'),
-              Expanded(child: SizedBox(),),
-              actionButton(
-                text: images==0?'Пропустить':'Далее',
-                color: primaryDark,
-                onPressed: () {setState(() {
-                  _actionIndex+=1;
-                });
-                }
-              )
             ],
           ),
         );
@@ -637,45 +614,12 @@ class _newCard extends State<newCard> {
                 ),
               ),
               hintBox('Карты с NFC без изображения необходимо назвать, чтобы они не потерялись!'),
-              Expanded(child: SizedBox(),),
-              actionButton(
-                onPressed: (_cardName.length==0 && images==0)?null:(){
-                  setState((){
-                    _actionIndex+=1;
-                  });
-                },
-                text: (_cardName.length==0 && images>0)?'Пропустить':'Далее',
-                color: primaryDark
-              ),
             ],
           ),
         );
         break;
       case 2:
-        return Column(
-          children: [
-            hintBox('Тут будет процесс добавления nfc метки'),
-            defButton(
-              onPressed: _loadingNFC?null:(){
-                if (_nfcData.length==0){
-                  _loadNFC();
-                }
-                else{
-                  setState(() {
-                    _actionIndex+=1;
-                  });
-                }
-              },
-              child: _loadingNFC?CircularProgressIndicator():Text(_nfcData.length==0?'Скопировать NFC-метку':'Добавить карту', style: white16),
-            ),
-            SizedBox(height: 12,),
-            images!=0?defButton(onPressed: (){
-              setState(() {
-                _actionIndex+=1;
-              });
-            }, color: primaryLight, child: Text('Пропустить', style: white16,)):SizedBox(),
-          ],
-        );
+        return hintBox('Тут будет процесс добавления nfc метки');
         break;
       case 3:
         return Container();
@@ -747,39 +691,84 @@ class _newCard extends State<newCard> {
       },
       child: Scaffold(
         appBar: appBarUsual(context, _width, child: Text('Добавьте новую карту', style: white20,), onBack: onBack,),
-        body: AnimatedContainer(
-          color: getColorForTile(_actionIndex+_r),
-          duration: Duration(milliseconds: 800),
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                /*
-                SizedBox(height: 6),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: Text(_unsorted ? 'Карта появится в списке неотсортированных' : ('Карта будет сразу добавлена в категорию ' + catName), style: black16, textAlign: TextAlign.center,),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFFFACC),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0.5, 1), blurRadius: 2.0)]
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  ),
+        body: Stack(
+          children: [
+            AnimatedContainer(
+              color: getColorForTile(_actionIndex+_r),
+              duration: Duration(milliseconds: 800),
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Container(
+                color: Colors.white,
+                height: MediaQuery.of(context).size.height,
+                child: ListView(
+                  children: [
+                    Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          /*
+                          SizedBox(height: 6),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 6),
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Text(_unsorted ? 'Карта появится в списке неотсортированных' : ('Карта будет сразу добавлена в категорию ' + catName), style: black16, textAlign: TextAlign.center,),
+                              decoration: BoxDecoration(
+                                color: Color(0xFFFFFACC),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [BoxShadow(color: Colors.black, offset: Offset(0.5, 1), blurRadius: 2.0)]
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            ),
+                          ),
+                           */
+                          SizedBox(height: 6),
+                          Form(
+                            autovalidateMode: AutovalidateMode.always, child: contentBuilder(),
+                          ),
+                          SizedBox(height: 6),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
-                 */
-                SizedBox(height: 6),
-                Form(
-                  autovalidateMode: AutovalidateMode.always, child: contentBuilder(),
-                ),
-                SizedBox(height: 6),
-              ],
+              ),
             ),
-          ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+              alignment: Alignment.bottomRight,
+              child: _actionIndex==0?defButton(
+                  text: images==0?'Пропустить':'Далее',
+                  color: primaryDark,
+                  onPressed: () {setState(() {
+                    _actionIndex+=1;
+                  });}):_actionIndex==1?defButton(
+                  onPressed: (_cardName.length==0 && images==0)?null:(){
+                    setState((){
+                      _actionIndex+=1;
+                    });
+                  },
+                  text: (_cardName.length==0 && images>0)?'Пропустить':'Далее',
+                  color: primaryDark
+              ):images!=0?defButton(onPressed: (){
+                setState(() {
+                  _actionIndex+=1;
+                });
+              }, color: primaryLight, text: 'Пропустить',):defButton(
+                onPressed: _loadingNFC?null:(){
+                  if (_nfcData.length==0){
+                    _loadNFC();
+                  }
+                  else{
+                    setState(() {
+                      _actionIndex+=1;
+                    });
+                  }
+                },
+                child: _loadingNFC?CircularProgressIndicator():Text(_nfcData.length==0?'Скопировать NFC-метку':'Добавить карту', style: white16),
+              ),
+            ),
+          ]
         ),
       ),
     );

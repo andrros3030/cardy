@@ -257,6 +257,14 @@ class localDB {
     await db.rawUpdate('UPDATE T_CARD SET V_COMMENT = ?, IT_CHANGE = ?, IV_USER = ? WHERE PK_ID = ? AND IL_DEL = 0',[noteText, timeStamp(), accountGuid, cardID]);
   }
 
+  generateTelegramKey()async{
+    /*TODO: here we generate link-ID,
+       send it to server,
+       after getting 200:OK return link to front-end
+    */
+    return guid();
+  }
+
   Future<List> categoriesPresets()async{
     Database db = await newDB;
     List _res = await db.rawQuery('SELECT '

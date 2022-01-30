@@ -178,7 +178,8 @@ Widget appBarUsual(BuildContext context, double _width, {Widget child, Function 
   );
 }
 
-Widget defButton({@required Function onPressed, Widget child, Color color}){
+
+Widget defButton({@required Function onPressed, Widget child, Color color, String text}){
   return AnimatedContainer(
     duration: Duration(milliseconds: 800),
     decoration: BoxDecoration(
@@ -189,7 +190,7 @@ Widget defButton({@required Function onPressed, Widget child, Color color}){
     child: MaterialButton(
       minWidth: 240,
       onPressed: onPressed,
-      child: child,
+      child: child==null?Text(text!=null?text:'empty', style: white16,):child,
       color: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       disabledColor: Colors.transparent,

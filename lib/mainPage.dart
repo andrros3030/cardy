@@ -5,7 +5,7 @@ import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:card_app_bsk/backend/hiveStorage.dart';
 import 'package:card_app_bsk/backend/database.dart';
-import 'package:nfc_in_flutter/nfc_in_flutter.dart';
+//import 'package:nfc_in_flutter/nfc_in_flutter.dart';
 
 
 import 'main.dart';

@@ -2,9 +2,7 @@ import 'package:card_app_bsk/telegram_dart.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:card_app_bsk/backend/database.dart';
-import 'package:fluttericon/font_awesome_icons.dart';
 
-import 'main.dart';
 
 class userPage extends StatefulWidget {
   @override
@@ -159,13 +157,7 @@ class _userPage extends State<userPage> {
                     SizedBox(height: 16,),
                     telephoneField(),
                     SizedBox(height: 16,),
-                    MaterialButton(
-                      elevation: 8.0,
-                      color: primaryDark,
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      onPressed: (){telegram_start(context, false,-1, -1);},
-                      child: Text("[Telegram]", style: white20,),
-                    ),
+                    defButton(onPressed: (){telegram_start(context, false,-1, -1);},child:Text("Connect Telegram", style: white20,)),
                   ],
                 ),
               ),
