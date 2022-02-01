@@ -1,4 +1,3 @@
-TODO: добавить гиперссылки на файл с кодом для каждого упоминания окна, мб запарсить в питоне. Подключить архив из Confluence и дописать документацию из него
 # _Cardy: приложение для хранения Ваших бонусных карт_
 ____
 
@@ -82,3 +81,38 @@ __:no_entry: - Было принято решение отказаться и н
 
 
 > <a href="https://cardy.atlassian.net/wiki/spaces/CRDY/overview">Более подробная документация в Confluence</a> опубликована для анонимного доступа, там же опубликовано <a href="https://cardy.atlassian.net/wiki/spaces/CRDY/pages/33239">пользовательское поведение</a> с последовательным описанием действий пользователя при взаимодействии с приложением.
+
+##Скриншоты
+###Главный экран
+<div class="row">
+<img alt="Главный экран 1" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742052.png" height="400"/>
+<img alt="Главный экран 2" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742391.png" height="400"/>
+</div>
+
+###Добавление карты
+<div class="row">
+<img alt="До загрузки изображений" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742489.png" height="400"/>
+<img alt="Загружены оба изображения" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742561.png" height="400"/>
+<img alt="Добавить название" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742582.png" height="400"/>
+<img alt="Модалка на две секунды" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742586.png" height="400"/>
+</div>
+
+###Просмотр карты
+<div class="row">
+<img alt="Просмотр оборотной стороны" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643743192.png" height="400"/>
+<img alt="Поле заметок" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643743181.png" height="400"/>
+</div>
+
+###Создание папки
+<div class="row">
+<img alt="Выбор заставки" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643743462.png" height="400"/>
+<img alt="Название" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643743477.png" height="400"/>
+<img alt="Модалка на две секунды" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643743480.png" height="400"/>
+</div>
+
+###Действия с картами
+<div class="row">
+<img alt="Поиск" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742066.png" height="400"/>
+<img alt="Перенос в категорию" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/screenshot_drag.png" height="400"/>
+<img alt="Карты в папке" src="https://raw.githubusercontent.com/andrros3030/cardy/safe-commit/screenshots/Screenshot_1643742412.png" height="400"/>
+</div>
