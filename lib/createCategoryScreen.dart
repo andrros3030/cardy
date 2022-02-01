@@ -86,12 +86,6 @@ class _createCategoryPage extends State<createCategory> {
               ):Text('Нам не удалось отобразить заготовленные изображения :(', style: red16,),
               SizedBox(height: 12,),
               Text('Или пропустите этот шаг :)', style: grey16, textAlign: TextAlign.center,),
-              defButton(onPressed: (){
-                _categoryName = '';
-                _imageChoosen = '';
-                setState(() {
-                _stage +=1;
-              });}, child: Text('Пропустить', style: white20,)),
             ],
           ),
         );
@@ -105,15 +99,6 @@ class _createCategoryPage extends State<createCategory> {
             children: [
               Container(child: _nameField(), padding: EdgeInsets.symmetric(horizontal:12, vertical: 6),),
               SizedBox(height: 12,),
-              defButton(
-                onPressed: _categoryName.length>0&&_formKey.currentState.validate()?(){
-                  _createCategory();
-                  setState(() {
-                    _stage+=1;
-                  });
-                }:null,
-                child: Text('Далее', style: white20,),
-              ),
             ],
           ),
         );
@@ -208,20 +193,42 @@ class _createCategoryPage extends State<createCategory> {
           },
           child: Form(
             autovalidateMode: AutovalidateMode.always, key: _formKey,
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 800),
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              width: _width,
-              alignment: Alignment.center,
-              color: getColorForTile(_r+_stage),
-              child: Container(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height,
-                color: Colors.white,
-                child: ListView(
-                  children: [_content()],
+            child: Stack(
+              children: [
+                AnimatedContainer(
+                  duration: Duration(milliseconds: 800),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  width: _width,
+                  alignment: Alignment.center,
+                  color: getColorForTile(_r+_stage),
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height,
+                    color: Colors.white,
+                    child: ListView(
+                      children: [_content()],
+                    ),
+                  ),
                 ),
-              ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                  alignment: Alignment.bottomRight,
+                  child: _stage==0? defButton(onPressed: (){
+                    _categoryName = '';
+                    _imageChoosen = '';
+                    setState(() {
+                      _stage +=1;
+                    });}, child: Text('Пропустить', style: white20,)):defButton(
+                    onPressed: _categoryName.length>0&&_formKey.currentState.validate()?(){
+                      _createCategory();
+                      setState(() {
+                        _stage+=1;
+                      });
+                    }:null,
+                    child: Text('Создать', style: white20,),
+                  ),
+                )
+              ],
             ),
           ),
         ),
