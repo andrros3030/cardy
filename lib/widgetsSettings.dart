@@ -132,7 +132,7 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
   );
 }
 
-Widget appBarUsual(BuildContext context, double _width, {Widget child, Function onBack, Widget trailing}){
+Widget appBarUsual(BuildContext context, double _width, {Widget leading, Widget child, Function onBack, Widget trailing}){
   return PreferredSize(
     preferredSize: Size(_width, appBarHeight),
     child: Container(
@@ -141,37 +141,51 @@ Widget appBarUsual(BuildContext context, double _width, {Widget child, Function 
           child: Container(
             width: _width,
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                (Navigator.canPop(context) || onBack != null)?GestureDetector(
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    child: Icon(
-                      Icons.arrow_back_ios_rounded,
-                      color: Colors.white,
+            child: Builder(builder: (context){
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  leading!=null?leading:(Navigator.canPop(context) || onBack != null)?GestureDetector(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      child: Icon(
+                        Icons.arrow_back_ios_rounded,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  onTap: onBack != null? onBack: (){
-                    Navigator.of(context).pop();
-                  },
-                ):Container(
-                  width: 40,
-                  height: 40,
-                  color: Colors.transparent,
-                ),
-                child == null?SizedBox():child,
-                trailing == null?GestureDetector(
-                  child: Container(
+                    onTap: onBack != null? onBack: (){
+                      Navigator.of(context).pop();
+                    },
+                  ):Scaffold.of(context).hasDrawer?GestureDetector(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      child: Icon(
+                        Icons.menu,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: (){
+                      Scaffold.of(context).openDrawer();
+                    },
+                  ):Container(
                     width: 40,
                     height: 40,
                     color: Colors.transparent,
                   ),
-                ):trailing,
-              ],
-            ),
+                  child == null?SizedBox():child,
+                  trailing == null?GestureDetector(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      color: Colors.transparent,
+                    ),
+                  ):trailing,
+                ],
+              );
+            }),
           )
       ),
     ),

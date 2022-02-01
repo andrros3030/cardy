@@ -18,7 +18,9 @@ class mainPage extends StatefulWidget {
 
 class _mainPage extends State<mainPage> {
   List<Map> categories = [];
+  List<Map> _querryCategories = [];
   Map cards = {};
+  Map _querryRes = {};
   bool _loading = true;
   double _width;
   String _currentState = '';
@@ -378,7 +380,7 @@ class _mainPage extends State<mainPage> {
     );
   }
   Widget cardTile(Map _data){
-    debugPrint(_data.toString());
+    //debugPrint(_data.toString());
     String _id = _data['id'];
     Widget _item = Hero(
       tag: _data['id'],
@@ -410,7 +412,7 @@ class _mainPage extends State<mainPage> {
                         child: Image.memory(_data['frontImage'],fit: BoxFit.cover),
                       ),
                       _data['frontImage']!=null?SizedBox():Center(
-                        child: Text("Card: " + _id, style: def24,),
+                        child: Text(_data['name'], style: def24,),
                       ),
                       Positioned(
                           right: 0.0,
@@ -522,7 +524,7 @@ class _mainPage extends State<mainPage> {
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: _controller.text.length == 0?[
           Column(
             children: tiles,
           ),
@@ -543,7 +545,7 @@ class _mainPage extends State<mainPage> {
               ),
             ),
           ),
-        ],
+        ]:tiles,
       ),
     );
   }
@@ -575,7 +577,47 @@ class _mainPage extends State<mainPage> {
       ),
     );
   }
-  Widget searcher(String _state){
+
+  void _search(String s){
+    s = s.toLowerCase();
+    if(_querryRes.isNotEmpty && s.length>0){
+      cards = {};
+      categories = [];
+      for (String el in _querryRes.keys){ //'null', 'CATEGORY1'
+        if (_currentState.length == 0 && (el != null && (el.toLowerCase().contains(s) || _querryCategories[_querryCategories.indexWhere((element) => element['id'] == el)]['name'].toString().toLowerCase().contains(s)))){
+          //cards[el] = _querryRes[el];
+          categories.add(_querryCategories[_querryCategories.indexWhere((element) => element['id'] == el)]);
+          List _tmp = [];
+          for (Map _card in _querryRes[el])
+            if (_card["id"].toString().toLowerCase().contains(s) || _card["name"].toString().toLowerCase().contains(s))
+              _tmp.add(_card);
+          if (_tmp.length > 0)
+            cards[el] = _tmp;
+        }
+        else{
+          List _tmp = [];
+          for (Map _card in _querryRes[el])
+            if (_card["id"].toString().toLowerCase().contains(s) || _card["name"].toString().toLowerCase().contains(s))
+              _tmp.add(_card);
+          if (_tmp.length > 0){
+            if (el!=null)
+              categories.add(_querryCategories[_querryCategories.indexWhere((element) => element['id'] == el)]);
+            cards[el] = _tmp;
+          }
+          else{
+            if (_currentState == el)
+              categories.add(_querryCategories[_querryCategories.indexWhere((element) => element['id'] == el)]);
+          }
+        }
+      }
+      setState(() {});
+    }
+    else{
+      loadData();
+    }
+  }
+  var _controller = TextEditingController();
+  Widget searcher(){
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       width: _width - 96,
@@ -586,15 +628,38 @@ class _mainPage extends State<mainPage> {
       ),
       alignment: Alignment.center,
       child: TextFormField(
+        controller: _controller,
         maxLines: 1,
         decoration: InputDecoration(
-          suffixIcon: Container(
-            child: Icon(
-              Icons.search,
-              color: Colors.grey,
+          border: InputBorder.none,
+          suffixIcon: GestureDetector(
+            child: Container(
+              child: Icon(
+                Icons.search,
+                color: Colors.grey,
+              ),
             ),
+            onTap: (){
+              _search(_controller.text);
+            },
+          ),
+          prefixIcon: GestureDetector(
+            child: Container(
+              child: Icon(
+                Icons.clear,
+                color: Colors.grey,
+              ),
+            ),
+            onTap: (){
+              _controller.clear();
+              _search('');
+            },
           ),
         ),
+        onChanged: _search,
+        onSaved: _search,
+        onEditingComplete: (){
+          _search(_controller.text);},
       ),
     );
   }
@@ -602,7 +667,9 @@ class _mainPage extends State<mainPage> {
   loadData()async{
     Map _tmp = await localDB.db.getUserCardsNCategories(acc_id: accountGuid);
     cards = _tmp["cards"];
+    _querryRes = Map.from(cards);
     categories = _tmp['categories'];
+    _querryCategories = List.from(categories);
     setState(() {
       _loading = false;
     });
@@ -619,42 +686,64 @@ class _mainPage extends State<mainPage> {
 
   @override
   Widget build(BuildContext context) {
-    _width = MediaQuery.of(context).size.width;
-    double _height = MediaQuery.of(context).size.height;
     if (_loading){
       loadData();
     }
-    if (_currentState.length < 1)
-      return Scaffold(
-        appBar: AppBar(
-          title: Container(
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            width: _width*0.8,
-            height: 30,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: TextFormField(
-              maxLines: 1,
-              decoration: InputDecoration(
-                suffixIcon: Container(
-                  child: Icon(
-                    Icons.search,
-                    color: Colors.grey,
-                  ),
+    _width = MediaQuery.of(context).size.width;
+    double _height = MediaQuery.of(context).size.height;
+    FloatingActionButton fab =  _controller.text.length == 0?FloatingActionButton(
+      child: Icon(Icons.add),
+      onPressed: creatNewCard,
+    ):null;
+    Widget app_search_bar = appBarUsual(context, _width, child: searcher(), onBack: _currentState.length < 1? null : (){setState(() {_currentState = '';});});
+    Widget content = Scaffold(
+      appBar: app_search_bar,
+      drawer: _currentState.length < 1?Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: primaryDark,
+              ),
+              child: Text(
+                'Drawer Header',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
                 ),
               ),
             ),
-          ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('User settings'),
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => userPage()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Exit'),
+              onTap: (){
+                closeAccount();
+                start();
+                while (Navigator.of(context).canPop())
+                  Navigator.of(context).pop();
+              },
+            ),
+          ],
         ),
-        body: _loading?Center(child: CircularProgressIndicator()):Container(
+      ):null,
+      floatingActionButton:fab,
+      body: _loading?Center(child: CircularProgressIndicator()):GestureDetector(
+        onTap: (){
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Container(
           width: _width,
           height: _height - appBarHeight,
           child: ListView(
             controller: _scrollController,
-            children: [
+            children: _currentState.length < 1?  [
               categoriesColumn(),
               SizedBox(height: 6,),
               Divider(thickness: 2, height: 6,),
@@ -672,49 +761,29 @@ class _mainPage extends State<mainPage> {
               ),
               SizedBox(height: 6,),
               cardsColumn(null),
+            ]:[
+              Container(
+                width: _width,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                alignment: Alignment.topLeft,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('В категории "' + categories[categories.indexWhere((element) => element['id']==_currentState)]['name'] + '" карт:'),
+                    counter(_currentState),
+                  ],
+                ),
+              ),
+              Divider(height: 6, thickness: 2,),
+              cardsColumn(_currentState),
             ],
           ),
         ),
-        drawer: Drawer(
-          child: ListView(
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: primaryDark,
-                ),
-                child: Text(
-                  'Drawer Header',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('User settings'),
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => userPage()));
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Exit'),
-                onTap: (){
-                  closeAccount();
-                  start();
-                  while (Navigator.of(context).canPop())
-                    Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: creatNewCard,
-        ),
-      );
+      ),
+    );
+
+    if (_currentState.length < 1)
+      return content;
     else{
       return WillPopScope(
         onWillPop: ()async{
@@ -723,38 +792,7 @@ class _mainPage extends State<mainPage> {
           });
           return false;
         },
-        child: Scaffold(
-          appBar: appBarUsual(context, _width, child: searcher(_currentState), onBack: (){setState(() {
-            _currentState = '';
-          });}),
-          body: _loading?Center(child: CircularProgressIndicator()):Container(
-            width: _width,
-            height: _height - appBarHeight,
-            child: ListView(
-              controller: _scrollController,
-              children: [
-                Container(
-                  width: _width,
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  alignment: Alignment.topLeft,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('В категории "' + categories[categories.indexWhere((element) => element['id']==_currentState)]['name'] + '" карт:'),
-                      counter(_currentState),
-                    ],
-                  ),
-                ),
-                Divider(height: 6, thickness: 2,),
-                cardsColumn(_currentState),
-              ],
-            ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: creatNewCard,
-          ),
-        ),
+        child: content,
       );
     }
   }
