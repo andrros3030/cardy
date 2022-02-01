@@ -139,7 +139,7 @@ class _mainPage extends State<mainPage> {
       height: 40,
     );
   }
-  Widget categoryTile(Map _data){
+  Widget categoryTile(Map _data){ //TODO: remove repeats from _item and _itemFull
     bool _primary = _activeZone == _data['id'];
     bool _dragged = _activeCategory == _data['id'];
     Widget _item = GestureDetector(
@@ -176,7 +176,7 @@ class _mainPage extends State<mainPage> {
                       ),
                       onTap: ()async {
                         bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          title: Text('Если Вы удалите категорию все карты из нее вернутся в список неотсортированных'),
                           children: [
                             TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
                             TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
@@ -239,7 +239,7 @@ class _mainPage extends State<mainPage> {
                       ),
                       onTap: ()async {
                         bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
+                          title: Text('Если Вы удалите категорию все карты из нее вернутся в список неотсортированных'),
                           children: [
                             TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
                             TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
@@ -267,67 +267,67 @@ class _mainPage extends State<mainPage> {
           _currentState = _data['id'];
         });
       },):GestureDetector(
-      child: Card(
-        elevation: 4.0,
-        child: Stack(
-          children: [
-            _data['image']==null?SizedBox():Container(
-              width: 300,
-              height: cardExtended,
-              child: Image.memory(_data['image'],fit: BoxFit.cover),
-            ),
-            Container(
-              width: _dragged?(_width-48):300,
-              height: cardExtended,
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Stack(
-                children: [
-                  _data['image']!=null?SizedBox():Center(child: Text(_data['name'], style: def24,),),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: counter(_data['id']),
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: GestureDetector(
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Icon(Icons.delete, color: Colors.red, size: 30,),
-                        //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                        padding: EdgeInsets.all(4),
-                        width: 40,
-                        height: 40,
-                      ),
-                      onTap: ()async {
-                        bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
-                          title: Text('Если Вы удалите категорию все карты из нее вернуться в список неотсортированных'),
-                          children: [
-                            TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
-                            TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
-                          ],
-                        );});
-                        if (res == null) res = false;
-                        if (res){
-                          await localDB.db.removeCategory(_data['id']);
-                          setState(() {
-                            _loading = true;
-                          });
-                        }
-
-                      },
-                    ),
-                  ),
-                ],
+        child: Card(
+          elevation: 4.0,
+          child: Stack(
+            children: [
+              _data['image']==null?SizedBox():Container(
+                width: 300,
+                height: cardExtended,
+                child: Image.memory(_data['image'],fit: BoxFit.cover),
               ),
-            ),
-          ],
+              Container(
+                width: _dragged?(_width-48):300,
+                height: cardExtended,
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Stack(
+                  children: [
+                    _data['image']!=null?SizedBox():Center(child: Text(_data['name'], style: def24,),),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: counter(_data['id']),
+                    ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: GestureDetector(
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Icon(Icons.delete, color: Colors.red, size: 30,),
+                          //decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                          padding: EdgeInsets.all(4),
+                          width: 40,
+                          height: 40,
+                        ),
+                        onTap: ()async {
+                          bool res = await showDialog(context: context, builder: (context){return SimpleDialog(
+                            title: Text('Если Вы удалите категорию все карты из нее вернутся в список неотсортированных'),
+                            children: [
+                              TextButton(onPressed: (){Navigator.pop(context, true);}, child: Text('Удалить категорию', style: red16,)),
+                              TextButton(onPressed: (){Navigator.pop(context, false);}, child: Text('Отмена', style: grey16,))
+                            ],
+                          );});
+                          if (res == null) res = false;
+                          if (res){
+                            await localDB.db.removeCategory(_data['id']);
+                            setState(() {
+                              _loading = true;
+                            });
+                          }
+
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      onTap: (){
-        setState(() {
-          _currentState = _data['id'];
-        });
-      },);
+        onTap: (){
+          setState(() {
+            _currentState = _data['id'];
+          });
+        },);
     if (_activeCategory.length>0 && !_dragged)  return _item;
     return Listener(
       child: LongPressDraggable(child: DragTarget<String>(
