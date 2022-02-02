@@ -49,6 +49,7 @@ Color getColorForTile(int index){
 ThemeData mainTheme = ThemeData(
   platform: TargetPlatform.android,
   primaryColor: primaryDark,
+  secondaryHeaderColor: Colors.white,
   accentColor: primaryDark,
   indicatorColor: primaryDark,
   bottomAppBarColor: primaryDark,
@@ -60,12 +61,13 @@ ThemeData mainTheme = ThemeData(
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
 TextStyle white24 = TextStyle(fontSize: 24, color: Colors.white);
 TextStyle def24 = TextStyle(fontSize: 24, color: primaryDark);
+TextStyle def20bold = TextStyle(fontSize: 20, color: primaryDark, fontWeight: FontWeight.bold);
 TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
 TextStyle red16 = TextStyle(color: Colors.red, fontSize: 16);
 TextStyle grey16 = TextStyle(color: Colors.grey, fontSize: 16);
 TextStyle white16 = TextStyle(color: Colors.white, fontSize: 16);
 TextStyle black16 = TextStyle(color: Colors.black, fontSize: 16);
-//TextStyle def16 = TextStyle(fontSize: 16, color: primaryDark);
+TextStyle def16 = TextStyle(fontSize: 16, color: primaryDark);
 //TODO
 
 BuildContext contextForLogic;
@@ -212,7 +214,7 @@ Widget appBarUsual(BuildContext context, double _width, {Widget leading, Widget 
 }
 
 /// Button widget to use as default
-Widget defButton({@required Function onPressed, Widget child, Color color, String text}){
+Widget defButton({@required Function onPressed, Widget child, Color color, String text, double minWidth}){
   return AnimatedContainer(
     duration: Duration(milliseconds: 800),
     decoration: BoxDecoration(
@@ -221,7 +223,7 @@ Widget defButton({@required Function onPressed, Widget child, Color color, Strin
       boxShadow: [BoxShadow(color: disabledGrey, offset: Offset(1, 1), blurRadius: 1.0, spreadRadius: 1.0)],
     ),
     child: MaterialButton(
-      minWidth: 240,
+      minWidth: minWidth==null?240:minWidth,
       onPressed: onPressed,
       child: child==null?Text(text!=null?text:'empty', style: white16,):child,
       color: Colors.transparent,

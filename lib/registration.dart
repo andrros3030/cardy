@@ -2,6 +2,8 @@ import 'package:card_app_bsk/backend/database.dart';
 import 'package:card_app_bsk/backend/hiveStorage.dart';
 import 'package:card_app_bsk/main.dart';
 import 'package:card_app_bsk/widgetsSettings.dart';
+import 'package:card_app_bsk/backend/storiesModel.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,31 +13,152 @@ class onBoarding extends StatefulWidget {
 }
 
 class _onBoarding extends State<onBoarding> {
-  @override
-  Widget build(BuildContext context) {
-    double _width = MediaQuery.of(context).size.width;
-    double _height = MediaQuery.of(context).size.height;
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+  double _width, _height;
+  List<Widget> _onBoardingPictures = [
+    Container(
+      color:Colors.transparent,
+      height: double.infinity,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Center(child: Text("onboarding"),),
-          MaterialButton(
-            color: primaryDark,
-            child: Text("зарегистрироваться"),
-            onPressed: (){appRuner(regScreen());},
+          RichText(
+            text: TextSpan(
+              text: "Все карты у Вас в телефоне\n\n",
+              style: def20bold,
+              children: <TextSpan>[
+                TextSpan(text: "Избавьтесь от кардхолдера и сохраните все карты в удобную струтуру - по папкам", style: def16)
+              ],
+            ),
           ),
-          SizedBox(height: 25,),
-          OutlineButton(
-            color: primaryDark,
-            child: Text("Войти"),
-            onPressed: (){
-              setOnboardingSkipped();
-              appRuner(AuthorizationScreen());
-            },
+          Container(
+            height: 200,
+            width: double.infinity,
+            color: disabledGrey,
           ),
         ],
+      ),
+    ),
+    Container(
+      color:Colors.transparent,
+      height: double.infinity,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          RichText(
+            text: TextSpan(
+              text: "Делитесь с близкими\n\n",
+              style: def20bold,
+              children: <TextSpan>[
+                TextSpan(text: "Поделитесь картой с другом или предоставьте доступ к аккаунту всей семье", style: def16)
+              ],
+            ),
+          ),
+          Container(
+            height: 200,
+            width: double.infinity,
+            color: disabledGrey,
+          ),
+        ],
+      ),
+    ),
+    Container(
+      color:Colors.transparent,
+      height: double.infinity,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          RichText(
+            text: TextSpan(
+              text: "Это безопасно\n\n",
+              style: def20bold,
+              children: <TextSpan>[
+                TextSpan(text: "Данные в приложении надежно шифруются и передаются только по защищенным протоколам", style: def16)
+              ],
+            ),
+          ),
+          Container(
+            height: 200,
+            width: double.infinity,
+            color: disabledGrey,
+          ),
+        ],
+      ),
+    )
+  ];
+
+  Widget _picturer(){
+    return Container(
+      width: _width-24,
+      height: _height-160,
+      child: Story(
+        autoPlay: true,
+        //fullscreen: false,
+        //showBottomBar: true,
+        momentCount: _onBoardingPictures.length,
+        momentDurationGetter: (index)=>Duration(seconds: 5),
+        momentBuilder: (context, index){
+          return Hero(
+              tag: "story${index+1}",
+              child: Container(
+                //color: Colors.transparent,
+                alignment: Alignment.center,
+                width: _width - 24,
+                height: _height - 160,
+                child: _onBoardingPictures[index],
+              )
+          );
+        },
+        startAt: 0,
+        onStoryEnded: (index){
+          return;
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    _width = MediaQuery.of(context).size.width;
+    _height = MediaQuery.of(context).size.height;
+    return Scaffold(
+      body: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _picturer(),
+            Container(
+              width: _width,
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  defButton(
+                    minWidth: 100,
+                    color: Colors.white, //Theme.of(context).secondaryHeaderColor
+                    child: Text("Войти", style: def16,),
+                    onPressed: (){
+                      setOnboardingSkipped();
+                      appRuner(AuthorizationScreen());
+                    },
+                  ),
+                  defButton(
+                    minWidth: 100,
+                    color: primaryDark,
+                    text: "Зарегистрироваться",
+                    onPressed: (){appRuner(regScreen());},
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
