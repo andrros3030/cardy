@@ -162,7 +162,7 @@ class _createCategoryPage extends State<createCategory> {
                 .size
                 .height,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [primaryLight, primaryDark],
+              gradient: LinearGradient(colors: bottomGradient.colors,
                   begin: Alignment.bottomRight,
                   end: Alignment.topLeft),
             ),

@@ -353,7 +353,7 @@ class _newCard extends State<newCard> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color:backgroundColor,
+                    color: primaryDark,
                     shape: BoxShape.circle,
                   ),
                   padding: EdgeInsets.all(8),
@@ -374,7 +374,7 @@ class _newCard extends State<newCard> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color:backgroundColor,
+                    color: primaryDark,
                     shape: BoxShape.circle,
                   ),
                   padding: EdgeInsets.all(8),
@@ -669,7 +669,7 @@ class _newCard extends State<newCard> {
             padding: EdgeInsets.all(24),
             height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [primaryLight, primaryDark], begin: Alignment.bottomRight, end: Alignment.topLeft),
+              gradient: LinearGradient(colors: bottomGradient.colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
             ),
             alignment: Alignment.center,
             child: Column(

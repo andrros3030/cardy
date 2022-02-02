@@ -8,22 +8,24 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttericon/font_awesome5_icons.dart';
 
+/// Main color in the application
 Color primaryDark = Colors.green; //из фигмы
+/// Second color used for gradient and backfields
 Color primaryLight = Colors.lightGreen; //из фигмы
-Color primaryBlack = Color(0xFF2E3034); //из фигмы
+/// Color for disabled fields
 Color disabledGrey = Colors.grey;
-Color successColor = Color(0xFF53D769); //из фигмы
-Color errorColor = Color(0xFFFF4E4E); //из фигмы
+//Color successColor = Color(0xFF53D769); //из фигмы
+//Color errorColor = Color(0xFFFF4E4E); //из фигмы
+//Color primaryBlack = Color(0xFF2E3034); //из фигмы
 
-Color backgroundColor = primaryDark; //основной цвет проги
-Color backForFields = primaryLight;
+/// Default gradient shader
 Gradient bottomGradient = LinearGradient(
-    colors: [backForFields, backgroundColor],
+    colors: [primaryLight, primaryDark],
     begin: Alignment.centerLeft,
     end: Alignment.topRight
 );
 
-//дополнительные цвета, которые можно использовать для тайлов или других цветных штук
+/// Secondary colors to use for tiles and dynamic background
 List<Color> secondaryColors = <Color>[
   Color(0xFF3CBAF0),
   Color(0xFF19C793),
@@ -36,80 +38,96 @@ List<Color> secondaryColors = <Color>[
   Color(0xFFFFFACC),
   Color.fromRGBO(43, 172, 252, 0.2)
 ];
-//получение цвета для заданного индекса внутри массива дополнительных цветов приложения
+
+/// Returns color from secondaryColors by [index]
 Color getColorForTile(int index){
+  // получение цвета для заданного индекса внутри массива дополнительных цветов приложения
   return secondaryColors[index % secondaryColors.length];
 }
 
+/// ThemeData to use as default
 ThemeData mainTheme = ThemeData(
   platform: TargetPlatform.android,
-  primaryColor: backgroundColor,
-  accentColor: backgroundColor,
-  indicatorColor: backgroundColor,
-  bottomAppBarColor: backgroundColor,
-  bottomAppBarTheme: BottomAppBarTheme(color: backgroundColor),
-  bottomSheetTheme: BottomSheetThemeData(backgroundColor: backgroundColor),
-);
+  primaryColor: primaryDark,
+  accentColor: primaryDark,
+  indicatorColor: primaryDark,
+  bottomAppBarColor: primaryDark,
+  bottomAppBarTheme: BottomAppBarTheme(color: primaryDark),
+  bottomSheetTheme: BottomSheetThemeData(backgroundColor: primaryDark),
+); // в будущем эту переменную будет изменять смена темы в приложении/системе, все цвета будут автоматически браться из темы
 
 //набор текстовых стилей, все основные стили прописаны здесь. Либо использовать напрямую, либо копировать с изменением параметров
 TextStyle white20 = TextStyle(fontSize: 20, color: Colors.white);
 TextStyle white24 = TextStyle(fontSize: 24, color: Colors.white);
-TextStyle def24 = TextStyle(fontSize: 24, color: backgroundColor);
+TextStyle def24 = TextStyle(fontSize: 24, color: primaryDark);
 TextStyle link16 = TextStyle(color: Color(0xFF3CBAF0), fontSize: 16); //для виджета текста почты тех поддержки
 TextStyle red16 = TextStyle(color: Colors.red, fontSize: 16);
 TextStyle grey16 = TextStyle(color: Colors.grey, fontSize: 16);
 TextStyle white16 = TextStyle(color: Colors.white, fontSize: 16);
 TextStyle black16 = TextStyle(color: Colors.black, fontSize: 16);
-TextStyle def16 = TextStyle(fontSize: 16, color: backgroundColor);
+//TextStyle def16 = TextStyle(fontSize: 16, color: primaryDark);
 //TODO
 
 BuildContext contextForLogic;
 
+/// Current state of the user
 bool authorized = false; //глобальная переменная для проверки, выполнен ли вход в аккаунт? Эквивалентна accountGuid == null
+/// Flag of the first run to show onboarding
 bool needAutoRegistration = true; //глобальная переменная для проверки, требуется ли авторегистрация? По факту - дублирует переменную в hive для более быстрой работы
 
-//функция возвращает хэш строки (используется при хэшировании пароля)
+
+/// Returns hash from [str]
 String getHash(String str){
+  //функция возвращает хэш строки (используется при хэшировании пароля)
   return md5.convert(utf8.encode(str)).toString();
 }
 
+/// Global variables for user data
 String accountGuid, accountEmail, pass;
 
-bool isWeb = false; //дубликат переменной kIsWeb, который используется в приложении
-
+/// Public application name
 final String app_name = "Cardy: your wallet"; //глобальное название приложения TODO
 
-//запускает приложение с заданным экраном и локализатором
+/// Starts new [home] application with default theme/title/color
 appRuner(Widget home){
   if(!kIsWeb)
     runApp(new MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: mainTheme,
         title: app_name,
-        color:backgroundColor,
+        color: primaryDark,
         home: home
     ));
   else
-    webRunner(home);
+    throw Exception("Веб-версия не реализована");
+    //webRunner(home);
 }
 
-//TODO что будет если открываем в браузере
+/*
+//bool isWeb = false; //дубликат переменной kIsWeb, который используется в приложении
+/// Web version of application
 webRunner(Widget home){
   if(kIsWeb)
     runApp(new MaterialApp(
         theme: mainTheme,
         title: app_name,
-        color: backgroundColor,
+        color: primaryDark,
         home: home
     ));
   else
     appRuner(home);
 }
+ */
 
+/// Flag if registration was offline and email isn't checked
 bool uncheckedEmailWhileRegister = true;
-bool unchekedEmail = true;
+/// Flag if email is still unchecked
+bool uncheckedEmail = true;
+/// Default appBar height
 double appBarHeight = 60;
 
+
+/// Password field to use as default
 Widget passwordField({Function validator, Function onChanged, @required bool obscure, @required onSuffixTap}){
   return TextFormField(
     maxLines: 1,
@@ -132,6 +150,7 @@ Widget passwordField({Function validator, Function onChanged, @required bool obs
   );
 }
 
+/// AppBar widget to use as default
 Widget appBarUsual(BuildContext context, double _width, {Widget leading, Widget child, Function onBack, Widget trailing}){
   return PreferredSize(
     preferredSize: Size(_width, appBarHeight),
@@ -192,7 +211,7 @@ Widget appBarUsual(BuildContext context, double _width, {Widget leading, Widget 
   );
 }
 
-
+/// Button widget to use as default
 Widget defButton({@required Function onPressed, Widget child, Color color, String text}){
   return AnimatedContainer(
     duration: Duration(milliseconds: 800),
@@ -214,17 +233,26 @@ Widget defButton({@required Function onPressed, Widget child, Color color, Strin
   );
 }
 
+/// Default access int value
 int mainAccessInt = 100;
+/// Height of card tile
 double cardHeight = 160;
+/// Height of category tile
 double cardExtended = 200;
+/// Max length of note string
 int noteLength = 1000;
-String supportEmail = 'support@cardy.com'; //TODO: fill our_adress
-//открывает ссылку на отправку
+
+/// Support email address (right now - unavailable)
+String supportEmail = 'cardy_bsk_app@mail.ru';
+
+/// Opens support email for current locale (right now - RU) with url_launcher.dart:launch()
 openSupportEmail(BuildContext context, {bool noLocalization = false})async{
   var url = 'mailto:';
   url += supportEmail;
   await launch(url);
 }
+
+/// Support label, on tap starts openSupportEmail
 Widget supportEmailLabel(BuildContext context){
   return GestureDetector(
     child: Container(
@@ -235,31 +263,3 @@ Widget supportEmailLabel(BuildContext context){
     },
   );
 }
-/*
-Map<String,IconData> preLoadedIcons = {
-  'comp':Icons.keyboard,
-  'work':Icons.work,
-  'pass':Icons.vpn_key,
-  'gift':Icons.card_giftcard,
-  'bons':Icons.card_membership,
-  'crdt':Icons.credit_card,
-  'memo':Icons.sd_card,
-  'mark':Icons.turned_in,
-  'star':Icons.star,
-  'fvrt':Icons.favorite,
-};
-Map<String,Color> preLoadedColors = {
-  '0xff93d9c4':Color(0xff93d9c4),
-  '0xffecd4d4':Color(0xffecd4d4),
-  '0xffbcdcdf':Color(0xffbcdcdf),
-  '0xffdfd3ea':Color(0xffdfd3ea),
-  '0xffede6d2':Color(0xffede6d2),
-  '0xfffffacc':Color(0xfffffacc),
-  '0xfffee600':Color(0xfffee600),
-  '0xff049fff':Color(0xff049fff),
-  '0xff8bc34a':Color(0xff8bc34a),
-  '0xff1957c7':Color(0xff1957c7),
-  '0xff4caf50':Color(0xff4caf50),
-  '0xffffffff':Color(0xffffffff),
-};
- */

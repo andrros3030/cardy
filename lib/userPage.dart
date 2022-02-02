@@ -47,7 +47,7 @@ class _userPage extends State<userPage> {
     });
   }
   Widget emailField(){
-    if (unchekedEmail)
+    if (uncheckedEmail)
       return Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),

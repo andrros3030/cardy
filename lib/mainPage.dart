@@ -133,7 +133,7 @@ class _mainPage extends State<mainPage> {
     return Container(
       alignment: Alignment.center,
       child: Text(cards.containsKey(key)?cards[key].length.toString():'0', style: white20,),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: backgroundColor),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: primaryDark),
       padding: EdgeInsets.all(4),
       width: 40,
       height: 40,

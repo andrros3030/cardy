@@ -1,5 +1,4 @@
-import 'dart:io';
-
+//import 'dart:io';
 import 'package:card_app_bsk/widgetsSettings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -24,7 +23,7 @@ Future initHive() async {
     if (keys.contains("email")) {
       accountEmail = appData.get("email");
       if (!List.from(appData.get(_keyBadEmails)).contains(accountEmail))
-        unchekedEmail = false;
+        uncheckedEmail = false;
     }
     if (keys.contains("pass") && appData.get("pass").toString().length >= 8){ //TODO: если человек ставит флажок "не сохрянать пароль" то записываем сюда слово до 8 символов
       pass = appData.get("pass");
